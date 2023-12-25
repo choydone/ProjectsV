@@ -1,6 +1,6 @@
 {
   "version": 2,
   "routes": [
-    {"src": "/openapi/(.*)","dest": "http://106.14.2.226:8080"}
+    {"src": "/openapi/(.*)","dest": "http://106.14.2.226:8080/$1"}
   ]
 }
