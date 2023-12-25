@@ -1,0 +1,328 @@
+<div #pageContent class="pages-content pages-orders-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>产品名称</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear nzShowSearch nzPlaceHolder="请输入产品名称" formControlName="productId">
+            <ng-container *ngFor="let p of products">
+              <nz-option [nzValue]="p.id" [nzLabel]="p.name"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>订单状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.openapi.mall.pojo.enums.OrdersStatusEnum'"
+                           formControlName="status"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="customer" nz-input placeholder="请输入客户名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户电话</nz-form-label>
+        <nz-form-control>
+          <input formControlName="mobile" nz-input placeholder="请输入客户电话"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>外部订单号</nz-form-label>
+        <nz-form-control>
+          <input formControlName="extOrdersNo" nz-input placeholder="请输入外部订单号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>代理商</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear nzShowSearch nzPlaceHolder="请选择代理商" formControlName="agentId">
+            <ng-container *ngFor="let a of agents">
+              <nz-option [nzValue]="a.id" [nzLabel]="a.name"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>下单日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="rangeDate"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <ng-template [ngIf]="checkPermission('mall:orders:create')">
+              <button *nzSpaceItem nz-button nzType="primary" type="button" (click)="openViewAction()">下单
+              </button>
+            </ng-template>
+            <ng-template [ngIf]="checkPermission('mall:orders:export')">
+              <button *nzSpaceItem nz-button nzType="default" type="button" nzDanger (click)="exportAction()">导出
+              </button>
+            </ng-template>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ x: tplTableOffsetX , y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth" nzLeft>ID</th>
+      <th [nzWidth]="tplWidth100">产品名称</th>
+      <th [nzWidth]="tplDefaultWidth">客户名称</th>
+      <th [nzWidth]="tplWidth100">单价</th>
+      <th [nzWidth]="tplSmallWidth">数量</th>
+      <th [nzWidth]="tplWidth100">总金额</th>
+   <!--   <th [nzWidth]="tplWidth100">原价</th>-->
+      <th [nzWidth]="tplWidth100">已收款</th>
+      <th [nzWidth]="tplWidth100">收款类型</th>
+      <th [nzWidth]="tplWidth100">状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplMiddleWidth">代理商</th>
+      <th [nzWidth]="tplMiddleWidth">外部订单号</th>
+      <th [nzWidth]="tplDateWidth">下单时间</th>
+      <th [nzWidth]="tplDefaultWidth">备注</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th [nzWidth]="tpl3BtnWidth" nzRight>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td nzLeft>
+        <ng-container *ngIf="checkPermission('mall:orders:capital:view');else noneShowBillTemplate;">
+          <a (click)="openCapitalViewAction(data)">{{ data.id }}</a>
+        </ng-container>
+        <ng-template #noneShowBillTemplate>
+          {{ data.id }}
+        </ng-template>
+      </td>
+      <td> {{ data.productName }}  </td>
+      <td nzEllipsis [nzTooltipTitle]="data.customer" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.customer)"> {{ data.customer }} </td>
+      <td><small>￥</small>{{data.unitMoney | number:'1.2-2'}}</td>
+      <td> {{ data.amount }}<small>件</small></td>
+      <td class="red"><small>￥</small>{{data.totalMoney | number:'1.2-2'}} </td>
+    <!--  <td>
+        <del class="gray"><small>￥</small>{{data.costMoney | number:'1.2-2'}}</del>
+      </td>-->
+      <td class="darkgoldenrod">
+        <small>￥</small>{{data.money | number:'1.2-2'}}
+      </td>
+      <td>
+        <app-status [status]="data.payType" [statusText]="data.payTypeText"></app-status>
+      </td>
+      <td>
+        <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                          [data]="data.statusFlow"></app-flow-preview>
+        <!--  <app-status [status]="data.status" [statusText]="data.statusText"></app-status>-->
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.agentName" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.agentName)"> {{ data.agentName }} </td>
+      <td nzEllipsis [nzTooltipTitle]="data.extOrdersNo" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.extOrdersNo)">{{ data.extOrdersNo}}</td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      <td nzEllipsis>{{ data.creator || "系统任务" }}</td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzRight>
+        <!--  <a (click)="openViewAction(data)" class="gray"
+             *ngIf="checkPermission('mall:orders:edit')&& (data.status==10) ">可修改</a>
+          <nz-divider nzType="vertical"
+                      *ngIf="checkPermission('mall:orders:edit') && (data.status==10)"></nz-divider>-->
+        <a (click)="openConfirmViewAction(data)" class="red"
+           *ngIf="checkPermission('mall:orders:copyright:confirmed')&& (data.status==10)">去确认</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:copyright:confirmed') && (data.status==10 )"></nz-divider>
+        <a nz-popconfirm (nzOnConfirm)="removeAction(data)" class="gray"
+           *ngIf="checkPermission('mall:orders:remove')  && (data.status==10 || data.status==30 )"
+           [nzPopconfirmTitle]="'是否确认封存客户【'+data.customer+'】的【'+data.productName+'】订单记录?'"
+           nzPopconfirmPlacement="bottomRight">封存</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:remove')  && (data.status==10 || data.status==30 )"></nz-divider>
+
+        <a (click)="openPreviewViewAction(data)" class="blue"
+           *ngIf="checkPermission('mall:orders:view')&& (data.status!=10) ">订单明细</a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    {{currentAction === add ? '新的' : '编辑'}}订单
+  </ng-container>
+  <ng-container *nzModalContent>
+    <nz-spin nzTip="数据加载中..." [nzSpinning]="isModalSpinning" [nzDelay]="500">
+      <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+        <nz-form-item>
+          <nz-form-label nzRequired>产品选择</nz-form-label>
+          <nz-form-control>
+            <nz-radio-group formControlName="productId" [nzDisabled]="currentAction === edit"
+                            (ngModelChange)="onChangeProductOrAgentAction($event)">
+              <label nz-radio *ngFor="let p  of products" [nzValue]="p.id">{{p.name}}</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>代理商</nz-form-label>
+          <nz-form-control nzHasFeedback nzErrorTip="代理商不能为空!">
+            <nz-select nzShowSearch nzPlaceHolder="请选择代理商" formControlName="agentId"
+                       [nzDisabled]="currentAction === edit" (ngModelChange)="onChangeProductOrAgentAction($event)">
+              <ng-container *ngFor="let a of agents">
+                <nz-option [nzValue]="a.id" [nzLabel]="a.name"></nz-option>
+              </ng-container>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>客户名称</nz-form-label>
+          <nz-form-control nzHasFeedback nzErrorTip="客户名称不能为空!">
+            <app-account-autocomplete formControlName="customer"
+                                      placeholder="请输入客户名称"></app-account-autocomplete>
+            <!--  <input nz-input placeholder="请输入客户名称" formControlName="customer"/>-->
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>客户手机号</nz-form-label>
+          <nz-form-control nzHasFeedback nzErrorTip="客户手机号不能为空!">
+            <input nz-input placeholder="请输入客户手机号" formControlName="mobile"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>签订合同</nz-form-label>
+          <nz-form-control>
+            <app-enum-radio [enumClass]="'com.projects.erp.starter.pojo.enums.WhetherEnum'"
+                            formControlName="isContract"></app-enum-radio>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>外部订单号</nz-form-label>
+          <nz-form-control>
+            <input nz-input placeholder="请输入外部订单号" formControlName="extOrdersNo"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>数量</nz-form-label>
+          <nz-form-control nzHasFeedback nzErrorTip="数量不能为空!" class="row-2">
+            <nz-input-number nzPlaceHolder="请输入数量" [nzMin]="1" [nzMax]="100" [nzStep]="1"
+                             formControlName="amount"
+                             class="w180" [nzPrecision]="0" (ngModelChange)="calcUnitMoneyAction2()"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>单价
+            <app-tooltip [text]="'最小单价：￥'+(agentMarketRule.money||0)"></app-tooltip>
+          </nz-form-label>
+          <nz-form-control nzHasFeedback nzErrorTip="单价不能为空!">
+            <nz-input-number-group nzPrefix="￥" class=" w180" [ngClass]="{'read-only':currentProduct.payType == 10}">
+              <nz-input-number  [nzStep]="1" formControlName="unitMoney"   [nzReadOnly]="currentProduct.payType == 10"
+                                [nzMin]="agentMarketRule.money||0" (ngModelChange)="calcMoneyAction()"></nz-input-number>
+            </nz-input-number-group>
+          </nz-form-control>
+        </nz-form-item>
+<!--
+        <nz-form-item>
+          <nz-form-label>原价格</nz-form-label>
+          <nz-form-control>
+            <nz-input-number-group nzPrefix="￥" class="read-only w180">
+              <nz-input-number nzReadOnly [nzStep]="1" nzPlaceHolder="根据系统自动计算"
+                               formControlName="costMoney"></nz-input-number>
+            </nz-input-number-group>
+          </nz-form-control>
+        </nz-form-item>-->
+        <nz-form-item>
+          <nz-form-label>订单总价格</nz-form-label>
+          <nz-form-control>
+            <nz-input-number-group nzPrefix="￥" class="read-only w180">
+              <nz-input-number nzReadOnly [nzStep]="1" nzPlaceHolder="订单总价自动计算"
+                               formControlName="totalMoney"></nz-input-number>
+            </nz-input-number-group>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container *ngIf="currentProduct.payType==10">
+          <nz-form-item>
+            <nz-form-label>账单</nz-form-label>
+            <nz-form-control class="row-2">
+              <nz-descriptions nzBordered nzLayout="vertical" nzSize="small">
+                <ng-container *ngFor="let control of elements">
+                  <nz-descriptions-item [nzTitle]="codeTitleTemplate">
+                    <nz-input-number-group nzPrefix="￥" class="w-100">
+                      <nz-input-number [nzStep]="1" [nzPlaceHolder]="control.name" [nzMin]="(control.minValue*this.validateForm.get('amount')?.value || 0)"
+                                       [formControlName]="control.code"
+                                       (ngModelChange)="calcUnitMoneyAction()"></nz-input-number>
+                    </nz-input-number-group>
+                    <p class="money_tips">{{control.remarks}}</p>
+                    <ng-template #codeTitleTemplate>
+                      {{control.name}}<p><small class="chocolate">
+                      最小单价金额：￥{{(control.minValue || 0)| number:'1.2-2'}}</small></p>
+                    </ng-template>
+                  </nz-descriptions-item>
+                </ng-container>
+              </nz-descriptions>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+
+        <nz-form-item>
+          <nz-form-label>备注</nz-form-label>
+          <nz-form-control class="row-2">
+            <textarea rows="2" nz-input formControlName="remarks"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-spin>
+
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<ng-container #dynamicComponentContainer></ng-container>

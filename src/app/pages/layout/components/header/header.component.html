@@ -1,0 +1,14 @@
+<ng-container *ngTemplateOutlet="toolBar"></ng-container>
+<ng-template #toolBar>
+  <app-tool-bar>
+    <ng-container left>
+      <span class="trigger ml-15" nz-icon
+            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            (click)="clickCollapsed()"
+      ></span>
+    </ng-container>
+    <ng-container right>
+      <app-head-right-menu></app-head-right-menu>
+    </ng-container>
+  </app-tool-bar>
+</ng-template>

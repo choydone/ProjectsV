@@ -1,0 +1,97 @@
+<div class="pages-copyright-element-dataset-content">
+  <form nz-form [nzLayout]="'inline'" class="r-refer-form element-form" [formGroup]="validateForm">
+    <input nz-input type="hidden" formControlName="id"/>
+    <input nz-input type="hidden" formControlName="description"/>
+    <input nz-input type="hidden" formControlName="copyright"/>
+    <input nz-input type="hidden" formControlName="carlet"/>
+    <nz-form-item>
+      <nz-form-label nzRequired>软件名称</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="软件名称不能为空!">
+        <input nz-input placeholder="请输入软件名称" formControlName="cnName" readonly/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>软件简称</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="软件简称不能为空!">
+        <input nz-input placeholder="请输入软件简称" formControlName="shortName"/>
+        <p class="element-tips rosybrown">注意：修改简称，限制6个中文字，否则首页会溢出。</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzNoColon></nz-form-label>
+      <nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>包路径</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="包路径不能为空!">
+        <input nz-input placeholder="请输入包路径" formControlName="basePackagePath"/>
+        <p class="element-tips rosybrown">注意：如果不会修改则不修改。必须英文</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>项目名称</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="项目名称不能为空!">
+        <input nz-input placeholder="请输入项目名称" formControlName="appName"/>
+        <p class="element-tips rosybrown">注意：如果不会修改则不修改。必须英文</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>作者</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="作者不能为空!">
+        <input nz-input placeholder="请输入作者" formControlName="author" readonly/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>默认头像</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="默认头像不能为空!">
+        <input nz-input placeholder="请输入默认头像" formControlName="avatar"/>
+        <p class="element-tips rosybrown">注意：如果不会修改则不修改。可为URL路径</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>favicon
+      <app-tooltip [text]= "'点一下重新生成favicon'" [tooltipColor]="'purple'"
+                   [iconColor]="'darkred'" (click)="generateFavicon()"></app-tooltip>
+      </nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="favicon不能为空!">
+        <input nz-input placeholder="请输入favicon" formControlName="favicon"/>
+        <p class="element-tips rosybrown">注意：如果不会修改则不修改。可为URL路径</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>登录背景图</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="登录背景图不能为空!">
+        <input nz-input placeholder="请输入登录背景图" formControlName="loginBg"/>
+        <p class="element-tips rosybrown">注意：如果不会修改则不修改。可为URL路径</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>样式选择</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="样式选择不能为空!">
+        <nz-select formControlName="theme">
+          <nz-option *ngFor="let n of themes" [nzValue]="n.code" [nzLabel]="n.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>布局选择</nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="样式选择不能为空!">
+        <nz-select formControlName="navStyle">
+          <nz-option *ngFor="let n of navStyles" [nzValue]="n.code" [nzLabel]="n.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="element-footer">
+      <nz-form-control>
+        <nz-space [nzSize]="30">
+          <button *nzSpaceItem nz-button nzType="default" nzDanger type="button" [nzLoading]="nzModalSaveBtnLoading"
+                  [disabled]="nzModalSaveBtnLoading" (click)="saveAction()">确认完成
+          </button>
+          <button *nzSpaceItem nz-button nzType="dashed" type="button" (click)="closeViewEvent.emit()">关闭页面</button>
+        </nz-space>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+</div>

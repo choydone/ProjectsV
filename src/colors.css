@@ -1,0 +1,569 @@
+.lightpink {
+  color: #ffb6c1;
+}
+
+.pink {
+  color: #ffc0cb;
+}
+
+.crimson {
+  color: #dc143c;
+}
+
+.lavenderblush {
+  color: #fff0f5;
+}
+
+.palevioletred {
+  color: #db7093;
+}
+
+.hotpink {
+  color: #ff69b4;
+}
+
+.deeppink {
+  color: #ff1493;
+}
+
+.mediumvioletred {
+  color: #c71585;
+}
+
+.orchid {
+  color: #da70d6;
+}
+
+.thistle {
+  color: #d8bfd8;
+}
+
+.plum {
+  color: #dda0dd;
+}
+
+.violet {
+  color: #ee82ee;
+}
+
+.magenta {
+  color: #ff00ff;
+}
+
+.fuchsia {
+  color: #ff00ff;
+}
+
+.darkmagenta {
+  color: #8b008b;
+}
+
+.purple {
+  color: #800080;
+}
+
+.mediumorchid {
+  color: #ba55d3;
+}
+
+.lightpink {
+  color: #ffb6c1;
+}
+
+.darkviolet {
+  color: #9400d3;
+}
+
+.darkorchid {
+  color: #9932cc;
+}
+
+.indigo {
+  color: #4b0082;
+}
+
+.blueviolet {
+  color: #8a2be2;
+}
+
+.mediumpurple {
+  color: #9370db;
+}
+
+
+.mediumslateblue {
+  color: #7b68ee !important;
+}
+
+.slateblue {
+  color: #6a5acd;
+}
+
+.darkslateblue {
+  color: #483d8b;
+}
+
+.lavender {
+  color: #e6e6fa;
+}
+
+.ghostwhite {
+  color: #f8f8ff;
+}
+
+.blue {
+  color: #0000ff !important;
+}
+
+.mediumblue {
+  color: #0000cd;
+}
+
+.midnightblue {
+  color: #191970;
+}
+
+.darkblue {
+  color: #00008b;
+}
+
+.navy {
+  color: #000080;
+}
+
+.royalblue {
+  color: #4169e1;
+}
+
+.cornflowerblue {
+  color: #6495ed;
+}
+
+.lightsteelblue {
+  color: #b0c4de;
+}
+
+.lightslategray {
+  color: #778899;
+}
+
+.slategray {
+  color: #708090;
+}
+
+.dodgerblue {
+  color: #1e90ff;
+}
+
+.aliceblue {
+  color: #f0f8ff;
+}
+
+.steelblue {
+  color: #4682b4;
+}
+
+.lightskyblue {
+  color: #87cefa;
+}
+
+.skyblue {
+  color: #87ceeb;
+}
+
+.deepskyblue {
+  color: #00bfff;
+}
+
+.lightblue {
+  color: #add8e6;
+}
+
+.powderblue {
+  color: #b0e0e6;
+}
+
+.cadetblue {
+  color: #5f9ea0;
+}
+
+.azure {
+  color: #f0ffff;
+}
+
+.lightcyan {
+  color: #e0ffff;
+}
+
+.paleturquoise {
+  color: #afeeee;
+}
+
+.cyan {
+  color: #00ffff;
+}
+
+.aqua {
+  color: #00ffff;
+}
+
+.darkturquoise {
+  color: #00ced1;
+}
+
+.darkslategray {
+  color: #2f4f4f;
+}
+
+.darkcyan {
+  color: #008b8b;
+}
+
+.teal {
+  color: #008080;
+}
+
+.mediumturquoise {
+  color: #48d1cc;
+}
+
+.lightseagreen {
+  color: #20b2aa;
+}
+
+.turquoise {
+  color: #40e0d0;
+}
+
+.aquamarine {
+  color: #7fffd4;
+}
+
+.mediumaquamarine {
+  color: #66cdaa;
+}
+
+.mediumspringgreen {
+  color: #00fa9a;
+}
+
+.mintcream {
+  color: #f5fffa;
+}
+
+.springgreen {
+  color: #00ff7f;
+}
+
+.mediumseagreen {
+  color: #3cb371;
+}
+
+.seagreen {
+  color: #2e8b57;
+}
+
+.honeydew {
+  color: #f0fff0;
+}
+
+.lightgreen {
+  color: #90ee90;
+}
+
+
+.palegreen {
+  color: #98fb98;
+}
+
+.darkseagreen {
+  color: #8fbc8f;
+}
+
+.limegreen {
+  color: #32cd32;
+}
+
+.lime {
+  color: #00ff00;
+}
+
+.forestgreen {
+  color: #228b22;
+}
+
+.green {
+  color: #008000 !important;
+}
+
+.darkgreen {
+  color: #006400;
+}
+
+.chartreuse {
+  color: #7fff00;
+}
+
+.lawngreen {
+  color: #7cfc00;
+}
+
+.greenyellow {
+  color: #adff2f;
+}
+
+.darkolivegreen {
+  color: #556b2f;
+}
+
+.yellowgreen {
+  color: #9acd32;
+}
+
+.olivedrab {
+  color: #6b8e23;
+}
+
+.beige {
+  color: #f5f5dc;
+}
+
+.lightgoldenrodyellow {
+  color: #fafad2;
+}
+
+.ivory {
+  color: #fffff0;
+}
+
+.lightyellow {
+  color: #ffffe0;
+}
+
+.yellow {
+  color: #ffff00;
+}
+
+.olive {
+  color: #808000;
+}
+
+.darkkhaki {
+  color: #bdb76b;
+}
+
+.lemonchiffon {
+  color: #fffacd;
+}
+
+.palegoldenrod {
+  color: #eee8aa;
+}
+
+.khaki {
+  color: #f0e68c;
+}
+
+.gold {
+  color: #ffd700;
+}
+
+.cornsilk {
+  color: #fff8dc;
+}
+
+.goldenrod {
+  color: #daa520;
+}
+
+.darkgoldenrod {
+  color: #b8860b;
+}
+
+.floralwhite {
+  color: #fffaf0;
+}
+
+.oldlace {
+  color: #fdf5e6;
+}
+
+.wheat {
+  color: #f5deb3;
+}
+
+.moccasin {
+  color: #ffe4b5;
+}
+
+.orange {
+  color: #ffa500;
+}
+
+.papayawhip {
+  color: #ffefd5;
+}
+
+.blanchedalmond {
+  color: #ffebcd;
+}
+
+.navajowhite {
+  color: #ffdead;
+}
+
+.antiquewhite {
+  color: #faebd7;
+}
+
+.tan {
+  color: #d2b48c;
+}
+
+.burlywood {
+  color: #deb887;
+}
+
+.bisque {
+  color: #ffe4c4;
+}
+
+.darkorange {
+  color: #ff8c00;
+}
+
+.linen {
+  color: #faf0e6;
+}
+
+.peru {
+  color: #cd853f;
+}
+
+.peachpuff {
+  color: #ffdab9;
+}
+
+.sandybrown {
+  color: #f4a460;
+}
+
+.chocolate {
+  color: #d2691e;
+}
+
+.saddlebrown {
+  color: #8b4513;
+}
+
+.seashell {
+  color: #fff5ee;
+}
+
+.sienna {
+  color: #a0522d;
+}
+
+.lightsalmon {
+  color: #ffa07a;
+}
+
+.coral {
+  color: #ff7f50;
+}
+
+.orangered {
+  color: #ff4500;
+}
+
+.darksalmon {
+  color: #e9967a;
+}
+
+.tomato {
+  color: #ff6347;
+}
+
+.mistyrose {
+  color: #ffe4e1;
+}
+
+.salmon {
+  color: #fa8072;
+}
+
+.snow {
+  color: #fffafa;
+}
+
+.lightcoral {
+  color: #f08080;
+}
+
+.rosybrown {
+  color: #bc8f8f;
+}
+
+.indianred {
+  color: #cd5c5c;
+}
+
+.red {
+  color: #ff0000 !important;
+}
+
+
+.brown {
+  color: #a52a2a;
+}
+
+.firebrick {
+  color: #b22222;
+}
+
+.darkred {
+  color: #8b0000;
+}
+
+.maroon {
+  color: #800000;
+}
+
+.white {
+  color: #ffffff;
+}
+
+.whitesmoke {
+  color: #f5f5f5;
+}
+
+.gainsboro {
+  color: #dcdcdc;
+}
+
+.lightgrey {
+  color: #d3d3d3;
+}
+
+.silver {
+  color: #c0c0c0;
+}
+
+.darkgray {
+  color: #a9a9a9;
+}
+
+.gray {
+  color: #808080 !important;
+}
+
+.dimgray {
+  color: #696969;
+}
+
+.black {
+  color: #000000;
+}
+
+
+

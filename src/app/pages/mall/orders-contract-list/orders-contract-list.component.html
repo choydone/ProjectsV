@@ -1,0 +1,225 @@
+<div #pageContent class="pages-content pages-orders-contract-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="customer" nz-input placeholder="请输入客户名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>合同名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="name" nz-input placeholder="请输入合同名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.starter.pojo.enums.StatusEnum'"
+                           formControlName="status"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>签约日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="signingDate"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>来源ID</nz-form-label>
+        <nz-form-control>
+          <input formControlName="originId" nz-input placeholder="请输入来源ID"/>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ x: tplTableOffsetX , y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th nzLeft [nzWidth]="tplIdWidth">ID</th>
+      <th nzLeft [nzWidth]="tplDefaultWidth">客户名称</th>
+      <th [nzWidth]="tplDefaultWidth">合同名称</th>
+      <th [nzWidth]="tplWidth100">签约时间</th>
+      <th [nzWidth]="tplWidth200">签约内容</th>
+      <th [nzWidth]="tplWidth200">付款条款</th>
+      <th [nzWidth]="tplWidth200">违约条款</th>
+      <th [nzWidth]="tplWidth80">合同下载</th>
+      <th [nzWidth]="tplWidth100">合同状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth100">合同来源</th>
+      <th [nzWidth]="tplWidth100">来源ID</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th nzRight [nzWidth]="tpl2BtnWidth">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td nzLeft><a>{{ data.id }}</a></td>
+      <td nzLeft (dblclick)="doCopy(data.customer)"> {{ data.customer }}  </td>
+      <td nzEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.name)"> {{ data.name }} </td>
+      <td> {{ data.signingDate | date:'yyyy-MM-dd'}} </td>
+      <td nzEllipsis [nzTooltipTitle]="data.content" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.content)"> {{ data.content }} </td>
+      <td nzEllipsis [nzTooltipTitle]="data.paymentTerms" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.paymentTerms)"> {{ data.paymentTerms }} </td>
+      <td nzEllipsis [nzTooltipTitle]="data.breakTerms" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.breakTerms)"> {{ data.breakTerms }} </td>
+      <td [nzAlign]="'center'">
+        <app-download [docData]="data.docData"></app-download>
+      </td>
+      <td>
+        <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                          [data]="data.statusFlow"></app-flow-preview>
+      </td>
+      <td>
+        <app-status [status]="data.originType" [statusText]="data.originTypeText"></app-status>
+      </td>
+      <td>
+        {{ data.originId}}
+      </td>
+      <td nzEllipsis>{{ data.creator }}</td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzRight>
+        <a (click)="openViewAction(data)" class="red"
+           *ngIf="checkPermission('mall:orders:contract:edit') &&data.status==10">编辑</a>
+        <!--  <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:contract:edit')"></nz-divider>
+        <a nz-popconfirm (nzOnConfirm)="removeAction(data)" class="gray"
+           *ngIf="checkPermission('mall:orders:contract:remove') "
+           [nzPopconfirmTitle]="'是否确认封存该【'+data.name+'】销售合同记录?'"
+           nzPopconfirmPlacement="bottomRight">封存</a>-->
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="780">
+  <ng-template #modalTitle>
+    编辑销售合同
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <nz-form-item>
+        <nz-form-label [nzRequired]="validateForm.get('status')?.value == 20 ">合同副本</nz-form-label>
+        <nz-form-control class="row-2" nzHasFeedback nzErrorTip="合同副本不能为空!">
+          <app-doc-single-card formControlName="docData" [title]="'合同'"
+                               [objectName]="'销售合同'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="状态不能为空!" class="row-2">
+          <app-enum-radio formControlName="status" (ngModelChange)="changeStatusAction($event)"
+                          [enumClass]="'com.projects.erp.openapi.acc.pojo.enums.ContractStatusEnum'"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>客户名称</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="客户名称不能为空!">
+          <input nz-input placeholder="客户名称" formControlName="customer" [readOnly]="currentAction==edit"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>签约时间</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="签约时间不能为空!">
+          <nz-date-picker [nzFormat]="dateFormat" formControlName="signingDate"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>合同名称</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="合同名称不能为空!" class="row-2">
+          <input nz-input placeholder="请输入合同名称" formControlName="name" [readOnly]="currentAction==edit"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>签约内容</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" placeholder="请输入签约内容" nz-input formControlName="content"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>付款条款</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" placeholder="请输入付款条款" nz-input formControlName="paymentTerms"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>违约条款</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" placeholder="请输入违约条款" nz-input formControlName="breakTerms"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngFor="let control of listOfControl; let i = index">
+        <nz-form-label>备注{{i + 1}}</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" placeholder="请输入备注" nz-input [formControlName]="control.controlInstance"></textarea>
+          <span nz-icon nzType="minus-circle-o" class="dynamic-delete-button"
+                (click)="removeField(control, $event)"></span>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzNoColon></nz-form-label>
+        <nz-form-control class="row-2">
+          <button type="button" nz-button nzType="dashed" class="add-button" (click)="addField($event)">
+            <span nz-icon nzType="plus"></span>
+            添加备注输入框
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>

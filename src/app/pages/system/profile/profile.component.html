@@ -1,0 +1,67 @@
+<div #pageContent class="pages-content pages-profile-content">
+  <div nz-row [nzGutter]="8">
+    <div nz-col [nzSpan]="6">
+      <nz-card>
+        <div class="info">
+          <div class="info-header">
+            <img nz-image width="100px" height="100px"
+                 nzSrc="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+            />
+            <h2 nz-typography class="mt-10">{{user.realName}}</h2>
+
+            <p nz-typography >{{user.remarks}}</p>
+          </div>
+       <!--   <nz-divider nzText="成就" nzOrientation="left"></nz-divider>
+          <p>
+            资深大佬
+          </p>-->
+        </div>
+      </nz-card>
+    </div>
+    <div nz-col [nzSpan]="18">
+      <nz-card nzTitle="基本信息">
+        <div class="form">
+          <form nz-form [formGroup]="validateForm" (ngSubmit)="savaForm()">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="7" nzRequired>登录名</nz-form-label>
+              <nz-form-control [nzSpan]="16"    >
+                <input nz-input formControlName="userName" placeholder="请输入" [readOnly]="true"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="7" nzRequired>用户名</nz-form-label>
+              <nz-form-control [nzSpan]="16"  >
+                <input nz-input formControlName="realName" placeholder="请输入" [readOnly]="true"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="7" nzRequired>手机号</nz-form-label>
+              <nz-form-control [nzSpan]="16"  >
+                <input nz-input formControlName="mobile" placeholder="请输入" [readOnly]="true"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="7" nzRequired>邮箱</nz-form-label>
+              <nz-form-control [nzSpan]="16"  >
+                <input nz-input formControlName="email" placeholder="请输入" [readOnly]="true"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="7">个人介绍</nz-form-label>
+              <nz-form-control [nzSpan]="16" >
+                <textarea formControlName="remarks" nz-input rows="4" placeholder="请输入个人介绍"></textarea>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control [nzOffset]="7" [nzSpan]="12">
+                <button nz-button nzType="primary" [disabled]="!validateForm.valid" [nzLoading]="nzBtnLoading">保存更改</button>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </div>
+      </nz-card>
+    </div>
+
+  </div>
+</div>
+

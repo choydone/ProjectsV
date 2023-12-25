@@ -1,0 +1,31 @@
+<app-status [status]="status" [statusText]="statusText" nz-popconfirm
+            class="cursor-pointer" (click)="showStatusAction()"
+            nz-tooltip nzTooltipPlacement="bottom" nzTooltipTrigger="click"
+            [nzTooltipTitle]="statusTitleTemplate"></app-status>
+
+<ng-template #statusTitleTemplate let-thing>
+  <div style=" width: 600px; background: white; padding: 24px 24px 0 24px;">
+    <nz-timeline>
+      <ng-container *ngFor="let logback of currentMallPriceData">
+        <nz-timeline-item nzColor="green">
+          <nz-space>
+              <span *nzSpaceItem nz-typography nz-tooltip nzTooltipPlacement="bottom"
+                    [nzTooltipTitle]="logback.remarks">【调价】</span>
+            <a *nzSpaceItem nz-typography>
+              <del class="gray"><small> ￥</small>{{logback.preUnitPrice | number:'1.2-2' }}</del>
+             </a>
+            <span *nzSpaceItem nz-typography> To </span>
+            <a *nzSpaceItem nz-typography> <small>￥</small>{{logback.unitPrice | number:'1.2-2'}} </a>
+            <span *nzSpaceItem nz-typography> 操作人：</span>
+            <a *nzSpaceItem nz-typography>{{logback.creator}} </a>
+            <span *nzSpaceItem nz-typography> 操作时间：</span>
+            <a *nzSpaceItem nz-typography>{{ logback.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</a>
+            <ng-template [ngIf]="logback.remarks">
+              <app-tooltip *nzSpaceItem [text]="logback.remarks"></app-tooltip>
+            </ng-template>
+          </nz-space>
+        </nz-timeline-item>
+      </ng-container>
+    </nz-timeline>
+  </div>
+</ng-template>

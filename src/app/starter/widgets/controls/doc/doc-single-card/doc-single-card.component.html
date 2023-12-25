@@ -1,0 +1,13 @@
+<nz-upload class="avatar-uploader" nzAction="/openapi/api/v1/aliyun/oss/upload"
+           [nzData]="{'objectName':objectName}"
+           nzListType="picture-card" [nzShowUploadList]="false"
+           (nzChange)="handleChange($event)" >
+  <ng-container *ngIf="!_avatarUrl">
+    <i class="upload-icon" nz-icon [nzType]="avatarLoading ? 'loading' : 'plus'"></i>
+    <div class="ant-upload-text">{{title}}</div>
+  </ng-container>
+  <img *ngIf="_avatarUrl" [src]="_avatarUrl | docStyle" style="width: 100%"/>
+</nz-upload>
+<ng-container *ngFor="let t of tips">
+  <p class="fonts-12 mt-10">{{t}}</p>
+</ng-container>

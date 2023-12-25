@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/openapi/(.*)", "destination": "http://106.14.2.226:8080" }
+  ]
+}

@@ -1,0 +1,18 @@
+.pages-param-content{
+  height: 100%;
+  //nz-input-group {
+  //  margin-bottom: 12px;
+  //}
+
+  .param-sider {
+    padding: 10px 5px;
+    float: left;
+    width: 300px;
+  }
+
+  .param-content {
+    padding: 10px;
+    float: right;
+    width: calc(100% - 300px);
+  }
+}

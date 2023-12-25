@@ -1,0 +1,123 @@
+.app-layout {
+  height: 100%;
+
+  .logo {
+    height: 26px;
+    margin: 11px;
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  nz-header {
+    background: #fff;
+    padding: 0;
+
+    .header-title {
+      height: 48px;
+      box-shadow: 0 -1px 0 #f0f0f0 inset;
+      transition: padding-left 0.3s cubic-bezier(0.2, 0, 0, 1) 0s, box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
+    }
+
+    // tabs 页签切换
+    div.header-tabs {
+      background-color: white;
+      height: 38px;
+      position: relative;
+      line-height: 38px;
+      box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+      border-bottom: .5px solid rgba(0, 21, 41, 0.08);
+    }
+
+    div.header-tabs > button.ant-btn-left {
+      left: 0;
+      position: absolute;
+      height: 37px;
+      text-align: center;
+      color: #999;
+      z-index: 2;
+      top: 0;
+      border-right: solid 1px #eee;
+    }
+
+    div.header-tabs > button.ant-btn-right {
+      right: 68px;
+      position: absolute;
+      height: 37px;
+      text-align: center;
+      color: #999;
+      z-index: 2;
+      top: 0;
+      border-left: solid 1px #eee;
+    }
+
+    div.header-tabs > button.ant-refresh {
+      right: 0;
+      padding-right: 8px;
+      padding-left: 8px;
+    }
+
+    div.header-tabs > button:hover {
+      color: #1890ff;
+    }
+
+    div.header-tabs > div.menu-tabs {
+      margin-left: 30px;
+      margin-right: 100px;
+      //width: 100000px;
+      height: 38px;
+      overflow: hidden;
+    }
+
+    div.header-tabs > div.menu-tabs > div.page-tabs-content {
+      float: left;
+    }
+
+    div.header-tabs > div.menu-tabs > div.page-tabs-content a {
+      display: block;
+      float: left;
+      border-right: solid 1px #eee;
+      padding: 0 15px;
+      color: #999;
+      transition: all .3s ease-out 0s;
+    }
+
+    div.header-tabs > div.menu-tabs > div.page-tabs-content a.active {
+      background: #e6f7ff;
+      color: #1890ff;
+    }
+
+    div.header-tabs > div.menu-tabs > div.page-tabs-content a i {
+      color: #ccc;
+      margin-left: 2px;
+      font-size: 13px;
+    }
+
+  }
+
+
+
+  nz-sider {
+    overflow: auto;
+    height: 100%;
+  }
+
+
+  nz-content {
+    margin: 38px 16px 0 16px;
+  }
+
+  nz-breadcrumb {
+    margin: 16px 0;
+  }
+
+  .inner-content {
+    height: 100%;
+    background: #fff;
+    min-height: 360px;
+  }
+
+  nz-footer {
+    text-align: center;
+    padding: 8px 50px;
+    font-size: 13px;
+  }
+}

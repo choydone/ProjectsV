@@ -1,0 +1,294 @@
+<div #pageContent class="pages-content pages-orders-copyright-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>软件名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="name" nz-input placeholder="请输入软件名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>著作权人</nz-form-label>
+        <nz-form-control>
+          <input formControlName="author" nz-input placeholder="请输入著作权人"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>业务状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.openapi.mall.pojo.enums.OrdersCopyrightStatusEnum'"
+                           formControlName="status"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="customer" nz-input placeholder="请输入客户名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户电话</nz-form-label>
+        <nz-form-control>
+          <input formControlName="mobile" nz-input placeholder="请输入客户电话"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>订单号</nz-form-label>
+        <nz-form-control>
+          <input formControlName="ordersId" nz-input placeholder="请输入订单号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>代理商</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear nzShowSearch nzPlaceHolder="请选择代理商" formControlName="agentId">
+            <ng-container *ngFor="let a of agents">
+              <nz-option [nzValue]="a.id" [nzLabel]="a.name"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>下单日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="rangeDate"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <ng-template [ngIf]="checkPermission('mall:orders:copyright:export')">
+              <button *nzSpaceItem nz-button nzType="default" type="button" nzDanger (click)="exportAction()">导出
+              </button>
+            </ng-template>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ x: tplTableOffsetX , y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth" nzLeft>ID</th>
+      <th [nzWidth]="tplDefaultWidth" nzLeft>软件名称</th>
+      <th [nzWidth]="tplDefaultWidth">著作权人</th>
+      <th [nzWidth]="tplMiddleWidth">登记号</th>
+      <th [nzWidth]="tplWidth100">获取时间</th>
+      <th [nzWidth]="tplWidth120">业务状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth90">订单号</th>
+      <th [nzWidth]="tplWidth100">版权状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth100">文档预览
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplSmallWidth">是否加急</th>
+      <th [nzWidth]="tplMiddleWidth">客户名称</th>
+      <th [nzWidth]="tplMiddleWidth">联系号</th>
+      <th [nzWidth]="tplMiddleWidth">代理商</th>
+      <th [nzWidth]="tplDateWidth">下单时间</th>
+      <th [nzWidth]="tplDefaultWidth">备注</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th [nzWidth]="tplWidth230" nzRight>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td nzLeft><a>{{ data.id }}</a></td>
+      <td nzLeft (dblclick)="doCopy(data.name)">{{ data.name }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.author)">{{ data.author }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.certId" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.certId)">{{ data.certId }}</td>
+      <td>{{ data.getTime | date:'yyyy-MM-dd'}}</td>
+      <td>
+        <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                          [data]="data.statusFlow"></app-flow-preview>
+      </td>
+      <td (dblclick)="doCopy(data.ordersId)">{{ data.ordersId }}</td>
+      <td [nzAlign]="'center'">
+        <ng-template [ngIf]="data.status == 22 ||data.status == 20 ">
+          <app-flow-preview [status]="data.extStatus" [statusText]="data.extStatusText"
+                            [data]="data.extData"></app-flow-preview>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <ng-template [ngIf]="isShowDocIcon(data)">
+          <app-doc-preview [docData]="data.docData"></app-doc-preview>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <app-status [status]="data.urgent" [statusText]="data.urgentText" [colorKey]="'whether'"></app-status>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.customer" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.customer)">{{ data.customer }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.mobile" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.mobile)">{{ data.mobile }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.agentName" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.agentName)"> {{ data.agentName }} </td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      <td nzEllipsis>{{ data.creator  }}</td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzRight>
+        <a class="blue" (click)="openViewAction(data)"
+           *ngIf="checkPermission('mall:orders:copyright:change_name')&& (data.status==10)">免费更名</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:copyright:change_name') && (data.status==10)"></nz-divider>
+
+        <a class="blue"
+           *ngIf="checkPermission('mall:orders:copyright:code_reset')&& (data.status==12 || data.status==14 )"
+           nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="resetCodeTitleTemplate">代码重构
+          <ng-template #resetCodeTitleTemplate let-thing>
+            <textarea #resetCodeRemarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入软件重构原因..."></textarea>
+            <button nz-button nzType="primary" nzBlock nzDanger
+                    (click)="resetCodeAction(data,resetCodeRemarksTfl)">是否确定软件重构，我确定！
+            </button>
+          </ng-template>
+        </a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:copyright:code_reset') && (data.status==12 || data.status==14)"></nz-divider>
+
+        <a class="red" (click)="openViewAction(data)"
+           *ngIf="checkPermission('mall:orders:copyright:change_name')&& (data.status==11||data.status==12||data.status==14)">收费更名</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('mall:orders:copyright:change_name') && (data.status==11||data.status==12||data.status==14)"></nz-divider>
+
+        <a class="gray"
+           *ngIf="checkPermission('mall:orders:copyright:cancelable')&& (data.status==10||data.status==11||data.status==12||data.status==14)"
+           nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="cancelableTitleTemplate">可取消
+          <ng-template #cancelableTitleTemplate let-thing>
+            <textarea #remarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入取消原因说明..."></textarea>
+            <button nz-button nzType="primary" nzBlock nzDanger
+                    (click)="cancelableAction(data,remarksTfl)">是否确定取消，我确定！
+            </button>
+          </ng-template>
+        </a>
+
+        <a class="gray" (click)="openCopyrightStatusAction(data)"
+           *ngIf="checkPermission('ipr:copyright:orders:done')&& (data.status==22) && (data.extStatus ==20)">单子验收
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+
+
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="550">
+  <ng-container *nzModalTitle>
+    {{currentOrdersCopyright.status == 10 ? '免费更改软件名称' : '收费更改软件名称'}}
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm">
+      <input [hidden]="true" formControlName="id">
+      <input [hidden]="true" formControlName="status">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>原软件名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="原软件名称不能为空!">
+          <input nz-input placeholder="请输入原软件名称" readonly formControlName="oldName"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>新软件名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="新软件名称不能为空!">
+          <input nz-input placeholder="请输入新软件名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>变更原因</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="变更原因不能为空!">
+          <textarea rows="4" nz-input placeholder="请输入变更原因" formControlName="remarks"></textarea>
+          <ng-template [ngIf]="currentOrdersCopyright.status != 10">
+            <p class="change-name-service-tips">
+              订单已进入制作环节，需要支付100元金额才可以修改，备注内请填写变更原因以及对应的支付金额以及支付单号！</p>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="nzModalCopyrightStatusVisible" (nzOnCancel)="closeCopyrightStatusViewAction()" [nzWidth]="500">
+  <ng-container *nzModalTitle>
+    子单软著完成确认，请仔细核对~
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateCopyrightStatusForm">
+      <input [hidden]="true" formControlName="id">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>软件名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input formControlName="name" readonly/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>登记号</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="登记号不能为空!">
+          <input nz-input placeholder="请输入登记号，例如：2023SR0898138" formControlName="certId"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>获取日期</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="获取日期不能为空!">
+          <nz-date-picker formControlName="getTime" [nzFormat]="dateFormat" class="w-100"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalCopyrightStatusBtnLoading"
+            (click)="saveCopyrightStatusAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeCopyrightStatusViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

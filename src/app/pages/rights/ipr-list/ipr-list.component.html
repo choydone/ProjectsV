@@ -1,0 +1,177 @@
+<div #pageContent class="pages-content pages-ipr-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>科技成果编号</nz-form-label>
+        <nz-form-control>
+          <input formControlName="certNo" nz-input placeholder="请输入证书号/专利号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="customer" nz-input placeholder="请输入客户名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>科技成果名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="name" nz-input placeholder="请输入科技成果名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>著作权人/发明人</nz-form-label>
+        <nz-form-control>
+          <input formControlName="author" nz-input placeholder="请输入著作权人"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>科技成果类型</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.openapi.ipr.pojo.enums.IprTypeEnum'"
+                           formControlName="type"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.starter.pojo.enums.StatusEnum'"
+                           formControlName="status"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>发证日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="rangeDate"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <ng-template [ngIf]="checkPermission('ipr:ipr:export')">
+              <button *nzSpaceItem nz-button nzType="default" type="button" nzDanger (click)="exportAction()">导出
+              </button>
+            </ng-template>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ x: tplTableOffsetX ,y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth" nzLeft>ID</th>
+      <th [nzWidth]="tplWidth240" nzLeft>科技成果名称</th>
+      <th [nzWidth]="tplWidth200">客户名称</th>
+      <th [nzWidth]="tplWidth180">著作权人/发明人</th>
+      <th [nzWidth]="tplWidth110">科技成果类型</th>
+      <th [nzWidth]="tplMiddleWidth">证书号</th>
+      <th [nzWidth]="tplWidth100">发证日期</th>
+      <th [nzWidth]="tplMiddleWidth">状态</th>
+      <th [nzWidth]="tplWidth100">资料下载<app-tooltip text="有详情可查看"></app-tooltip></th>
+      <th [nzWidth]="tplNameWidth">最后修改人</th>
+      <th [nzWidth]="tplDateWidth">最后修改时间</th>
+      <th [nzWidth]="tpl2BtnWidth" nzRight>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td nzLeft><a>{{ data.id }}</a></td>
+      <td (dblclick)="doCopy(data.name)" nzLeft>{{ data.name }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.customer" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.customer)">{{ data.customer }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.author)">{{ data.author }}</td>
+      <td>
+        <app-status [status]="data.type" [statusText]="data.typeText"></app-status>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.certNo" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.certNo)">{{ data.certNo }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.getTime" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.getTime)">{{ data.getTime | date:'yyyy-MM-dd'}}</td>
+      <td>
+        <app-status [status]="data.status" [statusText]="data.statusText" [colorKey]="'status'"></app-status>
+      </td>
+      <td [nzAlign]="'center'">
+        <ng-template [ngIf]="isShowDocIcon(data)">
+          <app-doc-preview [docData]="data.docData"></app-doc-preview>
+        </ng-template>
+      </td>
+      <td nzEllipsis>{{ data.modifier  }}</td>
+      <td> {{ data.gmtModify  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzRight>
+        <a class="blue" (click)="openViewAction(data)" *ngIf="checkPermission('ipr:ipr:edit')">补录</a>
+        <nz-divider nzType="vertical"  *ngIf="checkPermission('ipr:ipr:edit')"></nz-divider>
+        <a nz-popconfirm class="HotPink" (nzOnConfirm)="removeAction(data)" *ngIf="checkPermission('ipr:ipr:remove')"
+           [nzPopconfirmTitle]="'是否确认封存该【'+data.name+'】科技成果记录?'"
+           nzPopconfirmPlacement="bottomRight">封存</a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    补录【{{currentIpr.name}}】科技成果的材料
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <input [hidden]="true" formControlName="id">
+      <nz-form-item>
+        <nz-form-label nzRequired>补录材料</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="补录材料不能为空!">
+          <app-doc-easy [title]="'补录材料'" [objectName]="'科技成果'"  formControlName="docxPath"></app-doc-easy>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>补录说明</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" (click)="saveAction()">确认完成
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

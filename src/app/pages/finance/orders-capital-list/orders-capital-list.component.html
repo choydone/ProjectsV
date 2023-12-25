@@ -1,0 +1,230 @@
+<div #pageContent class="pages-content pages-sale-rule-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="customer" nz-input placeholder="请输入客户名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>客户手机号</nz-form-label>
+        <nz-form-control>
+          <input formControlName="mobile" nz-input placeholder="请输入客户手机号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>外部订单号</nz-form-label>
+        <nz-form-control>
+          <input formControlName="extOrdersNo" nz-input placeholder="请输入外部订单号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>代理商</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear nzShowSearch nzPlaceHolder="请选择代理商" formControlName="agentId">
+            <ng-container *ngFor="let a of agents">
+              <nz-option [nzValue]="a.id" [nzLabel]="a.name"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>产品名称</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear nzShowSearch nzPlaceHolder="请输入产品名称" formControlName="productId">
+            <ng-container *ngFor="let p of products">
+              <nz-option [nzValue]="p.id" [nzLabel]="p.name"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>收款状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.openapi.mall.pojo.enums.OrdersCapitalStatusEnum'"
+                           formControlName="status"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>订单状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-select [enumClass]="'com.projects.erp.openapi.mall.pojo.enums.OrdersStatusEnum'"
+                           formControlName="ordersStatus"></app-enum-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>账单日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="rangeDate"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <ng-template [ngIf]="checkPermission('finance:orders:capital:additional')">
+              <button *nzSpaceItem nz-button nzType="primary" type="button" (click)="openViewAction()">补收款单
+              </button>
+            </ng-template>
+            <ng-template [ngIf]="checkPermission('finance:orders:capital:export')">
+              <button *nzSpaceItem nz-button nzType="default" type="button" nzDanger (click)="exportAction()">导出
+              </button>
+            </ng-template>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ x: tplTableOffsetX , y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth">ID</th>
+      <th>产品名称</th>
+      <th>订单ID</th>
+      <th>客户名称</th>
+      <th>账单名称</th>
+      <th>收款金额</th>
+      <th [nzWidth]="tplDefaultWidth">备注</th>
+      <th [nzWidth]="tplWidth100">收款状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth100">订单状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplDefaultWidth">客户名称</th>
+      <th>代理商</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th [nzWidth]="tpl3BtnWidth">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td><a>{{ data.id }}</a></td>
+      <td (dblclick)="doCopy(data.name)"> {{ data.productName }}  </td>
+      <td><a (click)="gotoPageAction(data)"> {{ data.ordersId }}</a> </td>
+      <td (dblclick)="doCopy(data.customer)"> {{ data.customer }} </td>
+      <td (dblclick)="doCopy(data.billName)"> {{ data.billName }} </td>
+      <td (dblclick)="doCopy(data.money)"> <small>￥</small>  {{ data.money  | number:'1.2-2' }} </td>
+      <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      <td>
+        <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                          [data]="data.statusFlow"></app-flow-preview>
+      </td>
+      <td>
+        <app-flow-preview [status]="data.ordersStatus" [statusText]="data.ordersStatusText"
+                          [data]="data.ordersStatusFlow"></app-flow-preview>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.customer" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.customer)">{{ data.customer }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.agentName" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.agentName)">{{ data.agentName }}</td>
+      <td nzEllipsis>{{ data.creator }}</td>
+      <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td>
+        <a class="red"
+           *ngIf="checkPermission('finance:orders:capital:received') && data.status == 10"
+           nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="receivedTitleTemplate">确认收款
+          <ng-template #receivedTitleTemplate let-thing>
+            <textarea #receivedRemarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入收款账单关联信息..."></textarea>
+            <button nz-button nzType="primary" nzBlock nzDanger
+                    (click)="receivedAction(data,receivedRemarksTfl)">是否确定收款账单，我确定！
+            </button>
+          </ng-template>
+        </a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('finance:orders:capital:received')  && data.status == 10"></nz-divider>
+
+        <a class="gray"
+           *ngIf="checkPermission('finance:orders:capital:expired') && data.status == 10"
+           nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="expiredTitleTemplate">账单失效
+          <ng-template #expiredTitleTemplate let-thing>
+            <textarea #expiredRemarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入账单失效原因..."></textarea>
+            <button nz-button nzType="primary" nzBlock nzDanger
+                    (click)="expiredAction(data,expiredRemarksTfl)" >是否确定该账单失效，我确定！
+            </button>
+          </ng-template>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="550">
+  <ng-container *nzModalTitle>
+    补收款单
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>订单ID</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="订单ID不能为空!">
+          <input nz-input placeholder="请输入订单ID" formControlName="ordersId"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>账单名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="账单名称不能为空!">
+          <input nz-input placeholder="请输入账单名称" formControlName="billName"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>收款金额</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="收款金额不能为空!">
+          <input nz-input placeholder="请输入收款金额" formControlName="money"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>补单说明</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="补单说明不能为空!">
+          <textarea rows="4" placeholder="补单说明不能为空!" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

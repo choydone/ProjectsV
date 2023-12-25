@@ -1,0 +1,85 @@
+<div #pageContent class="pages-content pages-login_logger-content">
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+  <ng-template #titleTemplate>
+    <nz-space [nzSize]="'small'">
+      <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" nz-input placeholder="搜索登陆日志记录" [(ngModel)]="tplSearchValue"
+               (keyup.enter)="search(true)"/>
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch (click)="search(true)">
+          <span nz-icon nzType="search"></span>
+        </button>
+      </ng-template>
+      <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+        刷新
+      </button>
+    </nz-space>
+  </ng-template>
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzTitle]="titleTemplate"
+            [nzScroll]="{ x: tplTableOffsetX,y:tplTableOffsetY+'px' }">
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth">ID</th>
+      <th [nzWidth]="tplDefaultWidth">日志标题</th>
+      <th [nzWidth]="tplMiddleWidth">登陆人</th>
+      <th [nzWidth]="tplDefaultWidth">IP地址</th>
+      <th>操作系统</th>
+      <th >浏览器</th>
+      <th [nzWidth]="tplMiddleWidth">结果</th>
+      <th>登陆时间</th>
+      <!--      <th [nzWidth]="tpl3BtnWidth" nzRight>操作</th>-->
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td>{{ data.id }}</td>
+      <td>
+        <ng-container [ngSwitch]="data.title">
+          <ng-container *ngSwitchCase="'登陆'">
+            <nz-tag nzColor="blue">{{ data.title}}</nz-tag>
+          </ng-container>
+          <ng-container *ngSwitchCase="'登出'">
+            <nz-tag nzColor="orange">{{ data.title}}</nz-tag>
+          </ng-container>
+        </ng-container>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.userName" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.userName }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.ip" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.ip}}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.os" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.os}}
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.browser" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.browser}}
+      </td>
+      <td>
+        {{data.resText}}
+      </td>
+      <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <!--      <td >-->
+      <!--        <a (click)="openViewAction(data)" *ngIf="checkPermission('system:role:edit')">编辑</a>-->
+      <!--      </td>-->
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+

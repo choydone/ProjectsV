@@ -1,0 +1,92 @@
+.pages-copyright-kernel-dataset-content {
+  margin-top: 30px;
+
+  .copy-command {
+    position: absolute;
+    top: 33px;
+    left: 45px;
+    font-size: 18px;
+    color: brown;
+  }
+
+  .kernel-tips {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  .kernel-form .ant-form-item {
+    width: 32% !important;
+  }
+
+  .kernel-form .ant-form-item nz-form-label {
+    width: 120px !important;
+  }
+
+  .kernel-form .ant-form-item.orow {
+    width: 95% !important;
+  }
+
+  .kernel-form .element-footer {
+    width: 99% !important;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid lightgray;
+  }
+
+
+  .panel-box-container {
+    width: 100%;
+    padding-bottom: 12px;
+    border-top: 1px solid lightgray;
+
+    .panel-box-left {
+      width: 240px;
+      text-align: left;
+      float: left;
+      border-left: 1px solid #dee4e4;
+
+      .panel-box-header {
+        padding: 10px;
+        border-bottom: 1px solid #dee4e4;
+        border-right: 1px solid #dee4e4;
+        font-size: 13px;
+
+        .panel-menu {
+          display: inline-block;
+        }
+      }
+
+      .menu-code-icon {
+        font-size: 18px;
+        margin-left: 12px;
+      }
+
+      .menu-code-state {
+        font-size: 14px;
+      }
+    }
+
+    .panel-box-right {
+      float: left;
+      width: calc(100% - 240px);
+      text-align: left;
+
+      .save {
+        margin-right: 8px;
+      }
+
+      .panel-box-header {
+        padding: 10px;
+        border-bottom: 1px solid #dee4e4;
+        border-right: 1px solid #dee4e4;
+        font-size: 13px;
+
+        .panel-menu {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+
+}

@@ -1,0 +1,18 @@
+.pages-profile-content {
+  background: #ECECEC;
+  padding: 10px;
+  height: 100%;
+
+  .info{
+    .info-header{
+      text-align: center;
+    }
+  }
+  .form{
+    text-align: left;
+  }
+}
+
+[nz-form] {
+  max-width: 600px;
+}

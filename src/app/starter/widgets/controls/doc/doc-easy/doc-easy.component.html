@@ -1,0 +1,40 @@
+<nz-upload nzAction="/openapi/api/v1/aliyun/oss/upload" [nzLimit]="limit"
+           [nzShowButton]="defaultFileList.length < maxCount"
+           [nzData]="{'objectName':objectName}" (nzChange)="handleChange($event)"
+           [nzFileListRender]="fileListRenderTemplate" nzListType="picture">
+  <button nz-button type="button">
+    <span nz-icon nzType="upload"></span>
+    {{btnName}}
+  </button>
+</nz-upload>
+<ng-template #fileListRenderTemplate>
+  <ng-container *ngFor="let file of defaultFileList">
+    <div class="doc-easy-card">
+      <div class="doc-easy-card-info">
+      <span class="info-span">
+        <a class="thumbnail">
+          <img class="thumbnail-image" [src]="file.thumbUrl | docStyle" [alt]="file.name">
+        </a>
+        <a target="_blank" class="info-name" [href]="file.url" [title]="file.name" style=""> {{file.name}} </a>
+        <span class="info-actions">
+            <button nz-button nzType="text" type="button">
+              <a target="_blank" [href]="file.url">
+              <span nz-icon nzType="download" nzTheme="outline"></span>
+              </a>
+            </button>
+            <button nz-button nzType="text" type="button" type="button" (click)="removeAction(file)">
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+        </span>
+      </span>
+      </div>
+    </div>
+  </ng-container>
+</ng-template>
+<ng-container *ngFor="let t of tips">
+  <p class="fonts-12 mt-10">{{t}}</p>
+</ng-container>
+
+
+
+

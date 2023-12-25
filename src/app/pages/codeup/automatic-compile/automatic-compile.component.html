@@ -1,0 +1,17 @@
+<nz-card class="w-100" nzTitle="软著项目远程编译" [nzExtra]="extraTemplate">
+  <div class="scroll-container" #messageContainer>
+    <span nz-typography><strong>自动化编译基础服务已准备完成。</strong></span>
+    <span nz-typography nzType="secondary" *ngFor="let message of messages"
+          style="display: block;font-size: 13px;margin-top: 5px" >
+        {{message}}
+      </span>
+    <div style="height: 50px"></div>
+  </div>
+</nz-card>
+<ng-template #extraTemplate>
+  <a   nz-popconfirm
+       nzPopconfirmTitle="是否确认开始编译软著项目"
+       (nzOnConfirm)="startCompile()"
+       nzPopconfirmPlacement="bottomRight" >开始编译</a>
+</ng-template>
+

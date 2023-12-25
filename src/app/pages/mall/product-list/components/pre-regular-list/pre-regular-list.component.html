@@ -1,0 +1,35 @@
+<span nz-icon nzType="ordered-list" nzTheme="outline" class="fonts-16 blue cursor-pointer"
+      nz-popconfirm (click)="openViewAction()" nzTooltipTrigger="click"
+      nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="preTitleTemplate"></span>
+
+<ng-template #preTitleTemplate let-thing>
+  <div style=" width: 500px; background: white;">
+    <nz-table #robotTable
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzFrontPagination]="true"
+              [nzPageSize]="100"
+              [nzBordered]="true"
+              [nzLoadingDelay]="300"
+              [nzShowPagination]="false"
+              [nzData]="codeParser">
+      <thead>
+      <tr>
+        <th [nzWidth]="tplWidth50">序号</th>
+        <th>收款栏目</th>
+        <th>收款金额</th>
+        <th>备注</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable.data;let i = index">
+        <td [nzAlign]="'center'">{{i + 1}}</td>
+        <td>{{data.name}}</td>
+        <td><small>￥</small>{{data.code| number:'1.2-2' }}</td>
+        <td>{{data.remarks}}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</ng-template>
+

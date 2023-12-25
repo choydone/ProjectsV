@@ -1,0 +1,15 @@
+<nz-space>
+  <nz-select *nzSpaceItem class="j-district" nzPlaceHolder="请选择省" [(ngModel)]="province"
+             (ngModelChange)="selectedProvinceAction($event)">
+    <nz-option *ngFor="let province of provinces" [nzValue]="province.name"
+               [nzLabel]="province.name"></nz-option>
+  </nz-select>
+  <nz-select *nzSpaceItem class="j-district" nzPlaceHolder="请选择市" [(ngModel)]="city"
+             (ngModelChange)="selectedCityAction($event)">
+    <nz-option *ngFor="let city of cities" [nzValue]="city.name" [nzLabel]="city.name"></nz-option>
+  </nz-select>
+  <nz-select *nzSpaceItem class="j-district" nzPlaceHolder="请选择区" [(ngModel)]="area"
+             (ngModelChange)="selectedAreaAction($event)">
+    <nz-option *ngFor="let area of areas" [nzValue]="area.name" [nzLabel]="area.name"></nz-option>
+  </nz-select>
+</nz-space>

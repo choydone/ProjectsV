@@ -1,0 +1,9 @@
+<nz-upload nzType="drag" [nzMultiple]="true" [nzData]="{'objectName':objectName}"
+           nzAction="/support/api/v1/aliyun/oss/upload_multiple" nzName="files"
+           (nzChange)="handleChange($event)">
+  <p class="ant-upload-drag-icon">
+    <span nz-icon nzType="inbox"></span>
+  </p>
+  <p class="ant-upload-text">{{title}}</p>
+  <p class="ant-upload-hint">{{hint}}</p>
+</nz-upload>

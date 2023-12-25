@@ -1,0 +1,58 @@
+<nz-layout class="app-layout">
+  <nz-sider nzCollapsible nzWidth="200px" [(nzCollapsed)]="isCollapsed">
+    <div class="logo"></div>
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      <ng-container *ngFor="let menu of searchMenus()">
+        <ng-template [ngIf]="menu.children && menu.children.length>0">
+          <li nz-submenu [nzTitle]="menu.name" [nzIcon]="menu.icon">
+            <ul>
+              <ng-container *ngFor="let m of menu.children">
+                <li nz-menu-item  (click)="clickMenuLink(m)" ><span nz-icon  [nzType]="m.icon" class="mr-6"></span>{{m.name}}</li>
+              </ng-container>
+            </ul>
+          </li>
+        </ng-template>
+        <ng-template [ngIf]="!menu.children || menu.children.length ==0">
+          <li nz-menu-item (click)="clickMenuLink(menu)">
+            <span nz-icon  [nzType]="menu.icon" ></span>
+            <span>{{menu.name}}</span>
+          </li>
+        </ng-template>
+      </ng-container>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header>
+      <app-header (collapsedEvent)="collapsedEvent($event)"></app-header>
+      <div class="header-tabs">
+        <button class="ant-btn-left" nz-button nzType="link">
+          <i nz-icon nzType="backward" nzTheme="fill"></i>
+        </button>
+        <div class="menu-tabs">
+          <div class="page-tabs-content" style="margin-left: 0;">
+            <ng-template ngFor let-nav [ngForOf]="findNavs()" let-i="index">
+              <a href="javascript:;" [ngClass]="{'active':nav.active}"
+                 data-id="/ruoyi-plus/system/user" (click)="showNav(nav)">{{nav.name}}
+                <i nz-icon nzType="close-circle" nzTheme="fill" [hidden]="nav.id===0" (click)="closeNav(nav)"></i>
+              </a>
+            </ng-template>
+          </div>
+        </div>
+
+        <button class="ant-btn-right" nz-button nzType="link">
+          <i nz-icon nzType="forward" nzTheme="fill"></i>
+        </button>
+        <button class="ant-btn-right ant-refresh" nz-button nzType="link" (click)="refreshAction()">
+          <i nz-icon nzType="play-circle" nzTheme="fill"></i>
+          刷新
+        </button>
+      </div>
+    </nz-header>
+    <nz-content>
+      <div class="inner-content">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+    <nz-footer>{{env.copyright}}</nz-footer>
+  </nz-layout>
+</nz-layout>

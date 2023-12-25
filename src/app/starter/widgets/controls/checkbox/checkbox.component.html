@@ -1,0 +1,4 @@
+<label nz-checkbox *ngFor="let checkbox of checkboxs;" [(ngModel)]="checkbox.checked"
+       [nzDisabled]="checkbox.disabled"
+       (ngModelChange)="changeCheckBoxEvent($event,checkbox)">{{checkbox.label}}</label>
+

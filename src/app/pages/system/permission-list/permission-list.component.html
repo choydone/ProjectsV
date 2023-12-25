@@ -1,0 +1,175 @@
+<div #pageContent class="pages-content pages-permission-content">
+  <nz-layout class="h-100 ">
+    <nz-sider [nzTheme]="'light'" class="permission-sider">
+      <nz-input-group [nzSuffix]="suffixIcon">
+        <input type="text" nz-input placeholder="菜单搜索" [(ngModel)]="searchValue" />
+      </nz-input-group>
+      <ng-template #suffixIcon>
+        <span nz-icon nzType="search"></span>
+      </ng-template>
+      <nz-tree [nzData]="nodes" nzShowLine nzBlockNode class="mt-10"
+               [nzSearchValue]="searchValue"
+               (nzClick)="tree.tplTreeEvent($event)"
+               (nzExpandChange)="tree.tplTreeEvent($event)"
+               (nzSearchValueChange)="tree.tplTreeEvent($event)"
+      ></nz-tree>
+    </nz-sider>
+    <nz-layout>
+      <nz-content class="permission-content">
+        <div class="m-robot-table pt20">
+          <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+          <ng-template #titleTemplate>
+            <nz-space [nzSize]="'small'" class=" mr10">
+              <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+                <input type="text" nz-input placeholder="搜索权限记录" [(ngModel)]="tplSearchValue"
+                       (keyup.enter)="search(true)" />
+              </nz-input-group>
+              <ng-template #suffixIconButton>
+                <button nz-button nzType="primary" nzSearch (click)="search(true)">
+                  <span nz-icon nzType="search"></span>
+                </button>
+              </ng-template>
+              <ng-template [ngIf]="checkPermission('system:permission:create')">
+                <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="openViewAction()">
+                  新增
+                </button>
+              </ng-template>
+              <button *nzSpaceItem nz-button nzType="default" (click)="search(false)">
+                刷新
+              </button>
+              <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+                <a>全部</a></label>
+            </nz-space>
+            <div class="mt-5">
+              <nz-alert nzBanner nzType="info" [nzMessage]="permissionTableTitle" [nzShowIcon]="false"></nz-alert>
+            </div>
+          </ng-template>
+          <nz-table #robotTable
+                    [nzSize]="'small'"
+                    [nzTableLayout]="'fixed'"
+                    [nzBordered]="true"
+                    [nzShowPagination]="true"
+                    [nzLoading]="nzTableLoading"
+                    [nzLoadingDelay]="300"
+                    [(nzPageIndex)]="pagination.current"
+                    [nzFrontPagination]="false"
+                    [nzTotal]="pagination.total"
+                    [(nzPageSize)]="pagination.size"
+                    [nzShowTotal]="totalTemplate"
+                    (nzPageIndexChange)="search()"
+                    (nzPageSizeChange)="search(true)"
+                    [nzShowSizeChanger]="true"
+                    [nzPageSizeOptions]="[20,50,100,200]"
+                    [nzData]="pagination.records"
+                    [nzTitle]="titleTemplate"
+                    [nzScroll]="{ x: tplTableOffsetX,y:(tplTableOffsetY-80)+'px' }">
+            <thead>
+            <tr>
+              <th [nzWidth]="tplIdWidth">ID</th>
+              <th [nzWidth]="tplMiddleWidth">权限名称</th>
+              <th [nzWidth]="tplDefaultWidth">权限标识</th>
+              <th [nzWidth]="tplDefaultWidth">请求地址</th>
+              <th [nzWidth]="tplMiddleWidth">所属菜单</th>
+              <th [nzWidth]="tplStatusWidth">状态</th>
+              <th [nzWidth]="tplDefaultWidth">描述</th>
+              <th [nzWidth]="tplNameWidth">添加人</th>
+              <th [nzWidth]="tplDateWidth">添加时间</th>
+              <th [nzWidth]="tplNameWidth">修改人</th>
+              <th [nzWidth]="tplDateWidth">修改时间</th>
+              <th nzRight [nzWidth]="tpl2BtnWidth">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of robotTable.data">
+              <td>{{ data.id }}</td>
+              <td>{{ data.name }}</td>
+              <td nzEllipsis [nzTooltipTitle]="data.code" nzTooltipPlacement="bottomLeft" nz-button
+                  nz-tooltip>{{ data.code }}</td>
+              <td nzEllipsis [nzTooltipTitle]="data.requestPath" nzTooltipPlacement="bottomLeft" nz-button
+                  nz-tooltip>{{ data.requestPath }}</td>
+              <td>{{ data.menuName }}</td>
+              <td>
+                <app-status [status]="data.status" [statusText]="data.statusText"  [colorKey]="'status'"></app-status>
+              </td>
+              <td nzEllipsis>{{ data.remarks }}</td>
+              <td nzEllipsis>{{ data.creator }}</td>
+              <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+              <td nzEllipsis>{{ data.modifier }}</td>
+              <td>{{ data.gmtModify | date:'yyyy-MM-dd HH:mm'}}</td>
+              <td nzRight>
+                <a (click)="openViewAction(data)" *ngIf="checkPermission('system:permission:edit')">编辑</a>
+                <nz-divider nzType="vertical" *ngIf="checkPermission('system:permission:edit')"></nz-divider>
+                <a nz-popconfirm (nzOnConfirm)="removeAction(data)" *ngIf="checkPermission('system:permission:remove')"
+                   [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】权限记录?'"
+                   nzPopconfirmPlacement="bottomRight">
+                  删除
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+</div>
+
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="780">
+  <ng-template #modalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}权限
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [nzLayout]="'inline'" class=" r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <nz-form-item>
+        <nz-form-label nzRequired>所属菜单</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="所属菜单不能为空!">
+          <nz-tree-select [nzDisabled]="currentAction === edit"
+                          [nzNodes]="nodes" formControlName="menuId"
+                          nzShowSearch nzPlaceHolder="菜单选择"
+          ></nz-tree-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control>
+          <nz-switch nzCheckedChildren="正常" nzUnCheckedChildren="停用" formControlName="status"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>权限名称</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="权限名称不能为空!" class="row-2">
+          <input nz-input placeholder="请输入权限名称" formControlName="name" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>权限标识</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="权限标识不能为空!" class="row-2">
+          <input nz-input placeholder="请输入权限标识" formControlName="code" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>请求地址</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input formControlName="requestPath"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备注</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
+
+

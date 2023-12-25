@@ -1,0 +1,198 @@
+<div #pageContent class="pages-content pages-copyright-dataset-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>软件名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="name" nz-input placeholder="请输入软件名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>著作权人</nz-form-label>
+        <nz-form-control>
+          <input formControlName="author" nz-input placeholder="请输入著作权人"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>业务状态</nz-form-label>
+        <nz-form-control>
+          <nz-select nzShowSearch nzAllowClear [nzPlaceHolder]="'请选择业务状态'" formControlName="status">
+            <nz-option nzLabel="待接收" nzValue="10"></nz-option>
+            <nz-option nzLabel="制作中" nzValue="11"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth">ID</th>
+      <th>软件名称</th>
+      <th>著作权人</th>
+      <th [nzWidth]="tplWidth110">业务状态</th>
+      <th [nzWidth]="tplWidth120">制作负责人
+        <app-tooltip text="数据配置任务负责人"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth110">软件预览
+        <app-tooltip text="点击运行模拟软件，进行功能查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplSmallWidth">是否加急</th>
+      <th>备注</th>
+      <th [nzWidth]="tplNameWidth">最后修改人</th>
+      <th [nzWidth]="tplDateWidth">修改时间</th>
+      <th [nzWidth]="tplWidth180">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td>
+        <ng-container *ngIf="checkPermission('ipr:copyright:dataset:robot')&& (data.status==11); else autoPreviewTemplate;">
+          <a (click)="openAutoViewAction(data)">{{ data.id }}</a>
+        </ng-container>
+        <ng-template #autoPreviewTemplate>
+          {{ data.id }}
+        </ng-template>
+        </td>
+      <td nzEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.name)">{{ data.name }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.author)">{{ data.author }}</td>
+      <td>
+        <app-status [status]="data.status" [statusText]="data.statusText"></app-status>
+      </td>
+      <td>
+        <ng-container *ngIf="data.status==11; else taskerPreviewTemplate;">
+
+          {{data.statusFlow | currentTasker:data.status }}
+        </ng-container>
+        <ng-template #taskerPreviewTemplate>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <ng-container *ngIf="data.status==12;else statusPreviewTemplate;">
+           <span nz-icon nzType="chrome" nzTheme="outline" class="cursor-pointer fonts-18 cornflowerblue"
+                 (click)="openPreviewViewAction(data)"></span>
+        </ng-container>
+        <ng-template #statusPreviewTemplate>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <app-status [status]="data.urgent" [statusText]="data.urgentText" [colorKey]="'whether'"></app-status>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      <td>{{ data.modifier  }}</td>
+      <td> {{ data.gmtModify  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td>
+        <a class="blue" *ngIf="checkPermission('ipr:copyright:dataset:accepted')&& (data.status==10)"
+           nz-popconfirm nzPopconfirmPlacement="bottomRight" (nzOnConfirm)="acceptedAction(data)"
+           [nzPopconfirmTitle]="'是否确认接收该【'+data.name+'】软著制作任务?'">任务接收</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('ipr:copyright:dataset:accepted') && (data.status==10)"></nz-divider>
+        <a class="blue" (click)="openViewAction(data)"
+           *ngIf="checkPermission('ipr:copyright:dataset:config')&& (data.status==11)">数据配置</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('ipr:copyright:dataset:config') && (data.status==11)"></nz-divider>
+        <a class="gray"
+           *ngIf="checkPermission('ipr:copyright:dataset:processed')&& (data.status==11)"
+           nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="taskTitleTemplate">任务完成
+          <ng-template #taskTitleTemplate let-thing>
+            <textarea #remarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入后续业务需要注意的提示..."
+                      [value]="'略'"></textarea>
+            <button nz-button nzType="primary" nzBlock nzDanger (click)="processedAction(data,remarksTfl.value)">
+              我申明，已经测试，任务完成！
+            </button>
+          </ng-template>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzFooter]="null" [nzWidth]="1500"
+          [nzStyle]="{top:'10px'}">
+  <ng-container *nzModalTitle>
+    软件【{{currentCopyrightDataset.name}}】项目生成的基础配置。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <nz-steps nzType="navigation" nzSize="small" [nzCurrent]="index" (nzIndexChange)="onIndexChange($event)">
+      <nz-step
+        nzTitle="代码基线"
+        [nzStatus]="steps.kernelStep==1?'finish':'wait'"
+        nzDescription="This is a description."></nz-step>
+      <nz-step
+        nzTitle="文档配置"
+        [nzStatus]="steps.docxStep==1?'finish':'wait'"
+        nzDescription="This is a description."></nz-step>
+      <nz-step
+        nzTitle="基础信息"
+        [nzStatus]="steps.elementStep==1?'finish':'wait'"
+        nzDescription="This is a description.">
+      </nz-step>
+    </nz-steps>
+    <ng-container [ngSwitch]="index">
+      <ng-container *ngSwitchCase="0">
+        <app-kernel-dataset #kernelDatasetComponent (refreshEvent)="refreshCopyrightDatasetAction($event)"
+                            (closeViewEvent)="closeViewAction()"></app-kernel-dataset>
+      </ng-container>
+      <ng-container *ngSwitchCase="1">
+        <app-docx-dataset #docxDatasetComponent (refreshEvent)="refreshCopyrightDatasetAction($event)"
+                          (closeViewEvent)="closeViewAction()"></app-docx-dataset>
+      </ng-container>
+      <ng-container *ngSwitchCase="2">
+        <app-element-dataset #elementDatasetComponent (refreshEvent)="refreshCopyrightDatasetAction($event)"
+                             (closeViewEvent)="closeViewAction()"></app-element-dataset>
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+        <app-err500></app-err500>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</nz-modal>
+
+
+<ng-container #previewDynamicComponentContainer></ng-container>

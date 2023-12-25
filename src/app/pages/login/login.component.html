@@ -1,0 +1,45 @@
+<div class="pages-login-content">
+  <div class="container">
+    <div class="user-layout-lang">
+    </div>
+    <div class="user-layout-content">
+      <div class="top">
+        <div class="header">
+          <span class="title">趣牛科技</span>
+        </div>
+        <div class="desc"> 一款快速管理文档的应用软件，让您可以轻松管理项目。</div>
+      </div>
+
+      <div class="main">
+        <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="loginAction()">
+          <nz-form-item>
+            <nz-form-control nzErrorTip="请输入用户名">
+              <nz-input-group nzPrefixIcon="user">
+                <input type="text" nz-input formControlName="userName" placeholder="用户名：" />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control nzErrorTip="请输入密码">
+              <nz-input-group nzPrefixIcon="lock">
+                <input type="password" nz-input formControlName="password" placeholder="密码：" />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <button nz-button class="login-form-button login-form-margin" [nzType]="'primary'"
+                  [nzLoading]="loginBtnLoading">登录
+          </button>
+        </form>
+      </div>
+
+      <div class="footer">
+        <div class="links">
+          <a>帮助</a>
+          <a>隐私</a>
+          <a>条款</a>
+        </div>
+        <div class="copyright"> Copyright © 2023 趣牛科技</div>
+      </div>
+    </div>
+  </div>
+</div>

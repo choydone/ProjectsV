@@ -1,0 +1,177 @@
+<div #pageContent class="pages-content pages-role-content">
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+  <ng-template #titleTemplate>
+    <nz-space [nzSize]="'small'">
+      <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" nz-input placeholder="搜索角色记录" [(ngModel)]="tplSearchValue"
+               (keyup.enter)="search(true)"/>
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch (click)="search(true)">
+          <span nz-icon nzType="search"></span>
+        </button>
+      </ng-template>
+      <ng-template [ngIf]="checkPermission('system:role:create')">
+        <button *nzSpaceItem nz-button nzType="default" nzDanger (click)="openViewAction()">
+          新增
+        </button>
+      </ng-template>
+      <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+        刷新
+      </button>
+      <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+        <a>全部</a></label>
+    </nz-space>
+  </ng-template>
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzTitle]="titleTemplate"
+            [nzScroll]="{ x: tplTableOffsetX,y:(tplTableOffsetY-30)+'px' }">
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth" nzLeft>ID</th>
+      <th>角色名</th>
+      <th>标识</th>
+      <th [nzWidth]="tplStatusWidth">状态</th>
+      <th>描述</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th [nzWidth]="tplNameWidth">修改人</th>
+      <th [nzWidth]="tplDateWidth">修改时间</th>
+      <th [nzWidth]="tpl3BtnWidth" nzRight>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td>{{ data.id }}</td>
+      <td>{{ data.name }}</td>
+      <td>{{ data.code }}</td>
+      <td>
+        <app-status [status]="data.status" [statusText]="data.statusText" [colorKey]="'status'"></app-status>
+      </td>
+      <td nzEllipsis>{{ data.remarks }}</td>
+      <td nzEllipsis>{{ data.creator }}</td>
+      <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzEllipsis>{{ data.modifier }}</td>
+      <td>{{ data.gmtModify | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td nzRight>
+        <a (click)="openViewAction(data)" *ngIf="checkPermission('system:role:edit')">编辑</a>
+        <nz-divider nzType="vertical" *ngIf="checkPermission('system:role:edit')"></nz-divider>
+        <a (click)="openAuthorizeViewAction(data)" *ngIf="checkPermission('system:role:resource:save')">权限设置</a>
+        <nz-divider nzType="vertical" *ngIf="checkPermission('system:role:resource:save')"></nz-divider>
+        <a nz-popconfirm (nzOnConfirm)="removeAction(data)" *ngIf="checkPermission('system:role:remove')"
+           [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】角色记录?'"
+           nzPopconfirmPlacement="bottomRight">删除</a>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="550">
+  <ng-template #modalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}角色
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="validateForm">
+      <input [hidden]="true" formControlName="id">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>角色名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="角色名称不能为空!">
+          <input nz-input placeholder="请输入角色名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>角色标识</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="角色标识不能为空!">
+          <input nz-input placeholder="请输入角色标识" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>状态</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-switch nzCheckedChildren="正常" nzUnCheckedChildren="停用" formControlName="status"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea nz-input placeholder="请输入备注" formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal class="full-screen" nzClassName="full-screen" [(nzVisible)]="nzModalAuthorizeVisible"
+          [nzTitle]="'权限设置'" [nzContent]="modalContent2" [nzFooter]="null"
+          (nzOnCancel)="nzModalAuthorizeVisible=!nzModalAuthorizeVisible"
+          [nzStyle]="{ width:'80%',height:'100%'}"
+          [nzBodyStyle]="{'padding': '0','min-height':'400px'}">
+  <ng-template #modalContent2>
+    <div style="background: #ECECEC;padding:30px;">
+      <ng-container *ngFor="let mandate of mandates">
+        <div nz-row [nzGutter]="24">
+          <ng-container *ngFor="let mdate of mandate;">
+            <div nz-col [nzSpan]="8">
+              <nz-card [nzTitle]="mdate.name">
+                <ng-template [ngIf]="mdate.children && mdate.children.length>0">
+                  <ng-container *ngFor="let mm of mdate.children;let i = index">
+                    <div style="border-bottom: 1px solid rgb(233, 233, 233); padding-bottom: 6px;">
+                      <label nz-checkbox
+                             [(ngModel)]="multiBoxes[mm.id].allChecked"
+                             (ngModelChange)="clickAllCheckboxAction($event,mm)"
+                             [nzIndeterminate]="multiBoxes[mm.id].indeterminate">
+                        <nz-tag [nzColor]="tagColors[i]"> {{mm.name}}</nz-tag>
+                      </label>
+                    </div>
+                    <nz-checkbox-group [(ngModel)]="multiBoxes[mm.id].checkOptionsOne"
+                                       style="margin-bottom: 20px;margin-top: 8px"
+                                       (ngModelChange)="clickCheckboxAction($event,mm)"></nz-checkbox-group>
+                  </ng-container>
+                </ng-template>
+                <ng-template [ngIf]="!mdate.children || mdate.children.length==0">
+                  <div style="border-bottom: 1px solid rgb(233, 233, 233); padding-bottom: 6px;">
+                    <label nz-checkbox
+                           [(ngModel)]="multiBoxes[mdate.id].allChecked"
+                           (ngModelChange)="clickAllCheckboxAction($event,mdate)"
+                           [nzIndeterminate]="multiBoxes[mdate.id].indeterminate">
+                      <nz-tag [nzColor]="'magenta'"> {{mdate.name}}</nz-tag>
+                    </label>
+                  </div>
+                  <nz-checkbox-group [(ngModel)]="multiBoxes[mdate.id].checkOptionsOne"
+                                     style="margin-bottom: 20px;margin-top: 8px"
+                                     (ngModelChange)="clickCheckboxAction($event,mdate)"></nz-checkbox-group>
+                </ng-template>
+              </nz-card>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+</nz-modal>
+

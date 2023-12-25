@@ -1,0 +1,238 @@
+<div #pageContent class="pages-content pages-copyright-checkin-content">
+  <form nz-form [nzLayout]="'inline'" class="form-query" [formGroup]="formModel" (ngSubmit)="search(true)">
+    <nz-form-item>
+      <nz-form-label>全局查询</nz-form-label>
+      <nz-form-control>
+        <input formControlName="searchValue" nz-input placeholder="全局模糊查询-效率较低"/>
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container *ngIf="isCollapse">
+      <nz-form-item>
+        <nz-form-label>软件名称</nz-form-label>
+        <nz-form-control>
+          <input formControlName="name" nz-input placeholder="请输入软件名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>著作权人</nz-form-label>
+        <nz-form-control>
+          <input formControlName="author" nz-input placeholder="请输入著作权人"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>业务状态</nz-form-label>
+        <nz-form-control>
+          <nz-select nzShowSearch nzAllowClear [nzPlaceHolder]="'请选择业务状态'" formControlName="status">
+            <nz-option nzLabel="软件完成" nzValue="12 "></nz-option>
+            <nz-option nzLabel="文档制作及申报" nzValue="14"></nz-option>
+            <nz-option nzLabel="已申报" nzValue="22"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-form-control>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzGhost><span nz-icon nzType="search"></span>搜索</button>
+            <button *nzSpaceItem nz-button type="reset">重置</button>
+            <a *nzSpaceItem class="collapse" style="line-height: 32px" (click)="this.isCollapse = !this.isCollapse;">
+              高级查询
+              <span nz-icon [nzType]="!isCollapse ? 'down' : 'up'"></span>
+            </a>
+          </nz-space>
+        </nz-form-control>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzScroll]="{ y:(tplTableOffsetY-80)+'px' }">
+
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth">ID</th>
+      <th>软件名称</th>
+      <th>著作权人</th>
+      <th [nzWidth]="tplWidth130">业务状态</th>
+      <th [nzWidth]="tplWidth130">版权状态
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplWidth100">文档预览
+        <app-tooltip text="有详情可查看"></app-tooltip>
+      </th>
+      <th [nzWidth]="tplSmallWidth">是否加急</th>
+      <th>备注</th>
+      <th [nzWidth]="tplNameWidth">最后修改人</th>
+      <th [nzWidth]="tplDateWidth">修改时间</th>
+      <th [nzWidth]="tplWidth180">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td><a>{{ data.id }}</a></td>
+      <td nzEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.name)">{{ data.name }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.author)">{{ data.author }}</td>
+      <td>
+        <app-status [status]="data.status" [statusText]="data.statusText"></app-status>
+      </td>
+      <td>
+        <ng-template [ngIf]="data.status == 22 || data.status == 20 ">
+          <app-flow-preview [status]="data.extStatus" [statusText]="data.extStatusText"
+                            [data]="data.extData"></app-flow-preview>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <ng-template [ngIf]="isShowDocIcon(data)">
+          <app-doc-preview [docData]="data.docData"></app-doc-preview>
+        </ng-template>
+      </td>
+      <td [nzAlign]="'center'">
+        <app-status [status]="data.urgent" [statusText]="data.urgentText" [colorKey]="'whether'"></app-status>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+          (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      <td nzEllipsis>{{ data.modifier  }}</td>
+      <td> {{ data.gmtModify  | date:'yyyy-MM-dd HH:mm'}}</td>
+      <td>
+        <a class="blue" *ngIf="checkPermission('ipr:copyright:checkin:pre_declared')&& (data.status==12)"
+           nz-popconfirm nzPopconfirmPlacement="bottomRight" (nzOnConfirm)="preDeclaredAction(data)"
+           [nzPopconfirmTitle]="'是否确认接收该【'+data.name+'】软件文档制作及申报任务?'">任务接收</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('ipr:copyright:checkin:pre_declared') && (data.status==12)"></nz-divider>
+        <a class="blue" (click)="openDocxMakeAction(data)"
+           *ngIf="checkPermission('ipr:copyright:checkin:make')&& (data.status==14)">文档制作</a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('ipr:copyright:checkin:make') && (data.status==14)"></nz-divider>
+        <a class="red" (click)="openViewAction(data)"
+           *ngIf="checkPermission('ipr:copyright:checkin:declared')&& (data.status==14)">申报完成
+        </a>
+        <nz-divider nzType="vertical"
+                    *ngIf="checkPermission('ipr:copyright:checkin:callback') && (data.status==14) "></nz-divider>
+        <a class="red" (click)="openCopyrightViewAction(data)"
+           *ngIf="checkPermission('ipr:copyright:checkin:callback')&& (data.status==22) && (data.extStatus!=20 && data.extStatus!=24)">版权中心
+        </a>
+
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    是否确认完成对【{{currentCopyright.name}}】软件的版权中心业务申报
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <input [hidden]="true" formControlName="id">
+      <nz-form-item>
+        <nz-form-label nzRequired>说明书PDF</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="使用说明书PDF不能为空!">
+          <app-doc-single-card formControlName="docxPath" [title]="'说明书'"
+                               [objectName]="'软著申报'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>源程序PDF</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="软件源程序PDF不能为空!">
+          <app-doc-single-card formControlName="codePath" [title]="'源程序'"
+                               [objectName]="'软著申报'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>软件特色PDF</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="软件特色PDF不能为空!">
+          <app-doc-single-card formControlName="featurePath" [title]="'软件特色'"
+                               [objectName]="'软著申报'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>申请书PDF</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="软申请书PDF不能为空!">
+          <app-doc-single-card formControlName="putinPath" [title]="'申请书'"
+                               [objectName]="'软著申报'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>申报备注说明</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" (click)="saveAction()">确认完成
+    </button>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="nzModalCopyrightVisible"
+          (nzOnCancel)="closeCopyrightViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    更新【{{currentCopyright.name}}】软件的版权中心的审理状态
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateCopyrightForm"
+          (ngSubmit)="saveCopyrightAction()">
+      <nz-form-item>
+        <nz-form-label nzRequired>申报状态</nz-form-label>
+        <nz-form-control class="row-2">
+          <app-enum-radio formControlName="extStatus" (ngModelChange)="changeExtStatusAction($event)"
+                          [enumClass]="'com.projects.erp.openapi.mall.pojo.enums.OrdersCopyrightExtStatusEnum'"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label
+          [nzRequired]="(validateCopyrightForm.get('extStatus')?.value ==24||validateCopyrightForm.get('extStatus')?.value ==20)">
+          {{validateCopyrightForm.get('extStatus')?.value == 20 ? '证书文件' : '反馈文件'}}
+        </nz-form-label>
+        <nz-form-control nzHasFeedback
+                         [nzErrorTip]="validateCopyrightForm.get('extStatus')?.value ==20?'证书文件不能为空!':'反馈文件不能为空!'"
+                         class="row-2">
+          <app-doc-single-card formControlName="copyrightPath"
+                               [title]="validateCopyrightForm.get('extStatus')?.value ==20?'证书文件':'反馈文件'"
+                               [objectName]="'版权中心'"
+                               [tips]="['提示：上传版权中心反馈文件PDF文件。']"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>变更说明</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" nz-input formControlName="remarks" placeholder="请输入变更说明..."></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalCopyrightBtnLoading"
+            (click)="saveCopyrightAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeCopyrightViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<ng-container #previewDynamicComponentContainer></ng-container>

@@ -1,0 +1,91 @@
+<div class="pages-copyright-docx-dataset-content">
+  <form nz-form [nzLayout]="'inline'" class="r-refer-form docx-form" [formGroup]="validateForm">
+    <input nz-input type="hidden" formControlName="id"/>
+    <nz-form-item>
+      <nz-form-label>文档主单</nz-form-label>
+      <nz-form-control>
+        <nz-select style="width: 49%;" [(ngModel)]="docxMenuName" (ngModelChange)="changeMenuAction($event)"
+                   [ngModelOptions]="{standalone: true}">
+          <nz-option *ngFor="let m of  menus" [nzValue]="m.name" [nzLabel]="m.name"></nz-option>
+        </nz-select>
+        <nz-select style="width: 49%;" [(ngModel)]="childDocxMenuName" [ngModelOptions]="{standalone: true}">
+          <nz-option *ngFor="let c of childMenus" [nzValue]="c.name" [nzLabel]="c.name"></nz-option>
+        </nz-select>
+        <p class="docx-tips rosybrown">使用说明书的主介绍菜单</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="orow">
+      <nz-form-label nzRequired>系统描述
+        <span nz-icon nzType="copyright" nzTheme="outline" class="copy-command"
+              [nzTooltipTitle]="showCopyCommandTips('docx_system_info')"  nzTooltipPlacement="bottomLeft"
+              nz-tooltip  (click)="clickCopyCommand('docx_system_info')" ></span>
+      </nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="系统描述不能为空!">
+        <textarea rows="4" nz-input placeholder="请输入系统描述" formControlName="sysInfo"></textarea>
+        <p class="docx-tips rosybrown">使用说明书的主要系统概要描述</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="orow">
+      <nz-form-label nzRequired>面向领域/行业
+        <span nz-icon nzType="copyright" nzTheme="outline" class="copy-command" style="left: 76px"
+              [nzTooltipTitle]="showCopyCommandTips('docx_soft_domain')"  nzTooltipPlacement="bottomLeft"
+              nz-tooltip  (click)="clickCopyCommand('docx_soft_domain')" ></span>
+      </nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="面向领域/行业不能为空!">
+        <nz-textarea-count [nzMaxCharacterCount]="50">
+          <textarea rows="1" nz-input placeholder="请输入面向领域/行业不能为空" formControlName="soft"></textarea>
+        </nz-textarea-count>
+        <p class="docx-tips rosybrown">软著申请是所需要的内容</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="orow">
+      <nz-form-label nzRequired>开发目的
+        <span nz-icon nzType="copyright" nzTheme="outline" class="copy-command"
+              [nzTooltipTitle]="showCopyCommandTips('docx_soft_purpose')"  nzTooltipPlacement="bottomLeft"
+              nz-tooltip  (click)="clickCopyCommand('docx_soft_purpose')" ></span>
+      </nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="开发目的不能为空!">
+        <nz-textarea-count [nzMaxCharacterCount]="50">
+          <textarea rows="1" nz-input placeholder="请输入开发目的" formControlName="purpose"></textarea>
+        </nz-textarea-count>
+        <p class="docx-tips rosybrown">软著申请是所需要的内容</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="orow">
+      <nz-form-label nzRequired>主要功能
+        <span nz-icon nzType="copyright" nzTheme="outline" class="copy-command"
+              [nzTooltipTitle]="showCopyCommandTips('docx_soft_main_func')"  nzTooltipPlacement="bottomLeft"
+              nz-tooltip  (click)="clickCopyCommand('docx_soft_main_func')"></span>
+      </nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="主要功能不能为空!">
+        <nz-textarea-count [nzMaxCharacterCount]="200">
+          <textarea rows="4" nz-input placeholder="请输入主要功能" formControlName="mainFunc"></textarea>
+        </nz-textarea-count>
+        <p class="docx-tips rosybrown">软著申请是所需要的内容</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="orow">
+      <nz-form-label nzRequired>技术特点
+        <span nz-icon nzType="copyright" nzTheme="outline" class="copy-command"
+              [nzTooltipTitle]="showCopyCommandTips('docx_soft_feature')"  nzTooltipPlacement="bottomLeft"
+              nz-tooltip  (click)="clickCopyCommand('docx_soft_feature')"></span></nz-form-label>
+      <nz-form-control nzHasFeedback nzErrorTip="技术特点不能为空!">
+        <nz-textarea-count [nzMaxCharacterCount]="100">
+          <textarea rows="2" nz-input placeholder="请输入技术特点" formControlName="feature"></textarea>
+        </nz-textarea-count>
+        <p class="docx-tips rosybrown">软著申请是所需要的内容</p>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="element-footer">
+      <nz-form-control>
+        <nz-space [nzSize]="30">
+          <button *nzSpaceItem nz-button nzType="default" nzDanger type="button" [nzLoading]="nzModalSaveBtnLoading"
+                  [disabled]="nzModalSaveBtnLoading" (click)="saveAction()">确认完成
+          </button>
+          <button *nzSpaceItem nz-button nzType="dashed" type="button" (click)="closeViewEvent.emit()">关闭页面</button>
+        </nz-space>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</div>
+

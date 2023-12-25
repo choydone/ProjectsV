@@ -1,0 +1,18 @@
+.pages-code-design-content{
+  height: 100%;
+  //nz-input-group {
+  //  margin-bottom: 12px;
+  //}
+
+  .code-design-sider {
+    padding: 10px 5px;
+    float: left;
+    width: 350px;
+  }
+
+  .code-design-content {
+    padding: 10px;
+    float: left;
+    width: calc(100% - 350px);
+  }
+}

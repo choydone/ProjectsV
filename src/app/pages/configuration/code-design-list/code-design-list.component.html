@@ -1,0 +1,231 @@
+<div #pageContent class="pages-content pages-code-design-content">
+  <div class="code-design-sider">
+    <ng-template #totalTemplate let-total>共 <strong>{{leftPagination.total}}</strong> 条</ng-template>
+    <ng-template #titleTemplate>
+      <nz-space [nzSize]="'small'" class=" mr10">
+        <ng-template [ngIf]="checkPermission('configuration:code:design:create')">
+          <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="openLeftViewAction()">
+            新增
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:code:design:edit')">
+          <button *nzSpaceItem nz-button nzType="default" (click)="openLeftViewAction(currentRadioData)">
+            修改
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:code:design:remove')">
+          <button *nzSpaceItem nz-button nzType="default" nzDanger nz-popconfirm
+                  nzPopconfirmTitle="是否确认删除该设计器?" (nzOnConfirm)="removeLeftAction(currentRadioData)"
+                  nzPopconfirmPlacement="bottom">
+            删除
+          </button>
+        </ng-template>
+      </nz-space>
+    </ng-template>
+
+    <nz-table #robotTable class="configuration-left-table"
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzLeftTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="leftPagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="leftPagination.total"
+              [(nzPageSize)]="leftPagination.size"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="search()"
+              (nzPageSizeChange)="search(true)"
+              [nzData]="leftPagination.records"
+              [nzTitle]="titleTemplate"
+              [nzScroll]="{ x: tplTableOffsetX,y:tplTableOffsetY+'px' }">
+      <thead>
+      <tr>
+        <th [nzWidth]="tplCheckboxWidth"></th>
+        <!-- <th [nzWidth]="tplIdWidth">编号</th>-->
+        <th [nzWidth]="tplMiddleWidth">设计器名称</th>
+        <th>编码</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable.data">
+        <td>
+          <label nz-radio [nzValue]="data.id" [ngModel]="data.id === currentRadioData.id"
+                 (ngModelChange)="changeRadio($event,data)">
+          </label>
+        </td>
+        <!--  <td>{{ data.id }}</td>-->
+        <td>{{ data.name }}</td>
+        <td>{{ data.code }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+  <div class="code-design-content">
+    <ng-template #totalTemplate2 let-total>共 <strong>{{rightPagination.total}}</strong> 条</ng-template>
+    <ng-template #titleTemplate2>
+      <nz-space [nzSize]="'small'" class=" mr10">
+        <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+          <input type="text" nz-input placeholder="搜索设计器项记录" [(ngModel)]="tplSearchValue"
+                 (keyup.enter)="searchRight(true)"/>
+        </nz-input-group>
+        <ng-template #suffixIconButton>
+          <button nz-button nzType="primary" nzSearch (click)="searchRight (true)">
+            <span nz-icon nzType="search"></span>
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:code:design:create')">
+          <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="openRightViewAction()">
+            新增
+          </button>
+        </ng-template>
+        <button *nzSpaceItem nz-button nzType="default" (click)="searchRight(false)">
+          刷新
+        </button>
+        <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+          <a>全部</a></label>
+
+      </nz-space>
+    </ng-template>
+    <nz-table #robotTable2
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzRightTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="rightPagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="rightPagination.total"
+              [(nzPageSize)]="rightPagination.size"
+              [nzShowTotal]="totalTemplate2"
+              (nzPageIndexChange)="searchRight()"
+              (nzPageSizeChange)="searchRight(true)"
+              [nzShowSizeChanger]="true"
+              [nzPageSizeOptions]="[20,50,100,200]"
+              [nzData]="rightPagination.records"
+              [nzTitle]="titleTemplate2"
+              [nzScroll]="{ x: tplTableOffsetX,y:tplTableOffsetY+'px' }">
+      <thead>
+      <tr>
+        <th [nzWidth]="tplIdWidth">编号</th>
+        <th>设计器名称</th>
+        <th>设计器编码</th>
+        <th>代码解析值</th>
+        <th>描述</th>
+        <th [nzWidth]="tplDateWidth">添加时间</th>
+        <th [nzWidth]="tplDateWidth">修改时间</th>
+        <th [nzWidth]="tpl2BtnWidth" nzRight>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable2.data">
+        <td>{{ data.id }}</td>
+        <td zEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-button
+            nz-tooltip>{{ data.name }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.code" nzTooltipPlacement="bottomLeft" nz-button
+            nz-tooltip>{{ data.code }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.codeParser" nzTooltipPlacement="bottomLeft" nz-button
+            nz-tooltip (dblclick)="doCopy(data.codeParser)">{{ data.codeParser }}</td>
+        <td nzEllipsis>{{ data.remarks }}</td>
+        <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td>{{ data.gmtModify | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td nzRight>
+          <a (click)="openRightViewAction(data)" *ngIf="checkPermission('configuration:code:design:edit')">编辑</a>
+          <nz-divider nzType="vertical" *ngIf="checkPermission('configuration:code:design:edit')"></nz-divider>
+          <a nz-popconfirm (nzOnConfirm)="removeRightAction(data)"
+             *ngIf="checkPermission('configuration:code:design:remove')"
+             [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】设计器器记录?'"
+             nzPopconfirmPlacement="bottomRight">
+            删除
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="500">
+  <ng-container *nzModalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}设计器方案
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>设计名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="设计名称不能为空!">
+          <input nz-input placeholder="请输入设计名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>设计编码</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="设计编码不能为空!">
+          <input nz-input placeholder="请输入设计编码" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea rows="2" nz-input placeholder="请输入备注" formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="nzRightModalVisible" (nzOnCancel)="closeRightViewAction()" [nzWidth]="780">
+  <ng-container *nzModalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}设计器方案
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateRightForm"
+          (ngSubmit)="saveRightAction()">
+      <nz-form-item>
+        <nz-form-label nzRequired>设计名称</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="设计名称不能为空!">
+          <input nz-input placeholder="请输入设计名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>设计编码</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="设计编码不能为空!">
+          <input nz-input placeholder="请输入设计编码" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-radio [enumClass]="'com.projects.erp.starter.pojo.enums.StatusEnum'"
+                          formControlName="status"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>代码解析器</nz-form-label>
+        <nz-form-control class="row-2" nzHasFeedback nzErrorTip="代码解析器不能为空!">
+          <textarea rows="6" nz-input placeholder="请输入代码解析器" formControlName="codeParser"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备注</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input placeholder="请输入备注" formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzRightModalBtnLoading" nzShape="round"
+            (click)="saveRightAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeRightViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

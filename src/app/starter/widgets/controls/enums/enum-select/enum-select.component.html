@@ -1,0 +1,4 @@
+<nz-select [nzShowSearch]="nzShowSearch" [nzAllowClear]="nzAllowClear" [nzPlaceHolder]="nzPlaceHolder"
+           [nzMode]="nzMode"  [(ngModel)]="selectedValue" (ngModelChange)="selectedAction($event)">
+    <nz-option *ngFor="let e of enums;" [nzLabel]="e.name" [nzValue]="e.value"></nz-option>
+</nz-select>

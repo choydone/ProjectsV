@@ -1,0 +1,10 @@
+<nz-tag *ngFor="let tag of tags; let i = index" [nzMode]="i === 0 ? 'default' : 'closeable'"
+        (nzOnClose)="handleClose(tag)">
+  {{ sliceTagName(tag) }}
+</nz-tag>
+<nz-tag *ngIf="!inputVisible" nzNoAnimation (click)="showInput()" class="editable-tag">
+  <i nz-icon nzType="plus"></i> 请输入
+</nz-tag>
+<input [(ngModel)]="inputValue" [ngModelOptions]="{standalone: true}"
+       #inputElement nz-input nzSize="small" *ngIf="inputVisible" type="text" style="width: 78px;"
+       (blur)="handleInputConfirm()" (keydown.enter)="handleInputConfirm()"/>

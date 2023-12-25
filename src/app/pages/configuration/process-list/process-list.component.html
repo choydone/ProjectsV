@@ -1,0 +1,291 @@
+<div #pageContent class="pages-content pages-process-content">
+  <div class="process-sider">
+    <ng-template #totalTemplate let-total>共 <strong>{{leftPagination.total}}</strong> 条</ng-template>
+    <ng-template #titleTemplate>
+      <nz-space [nzSize]="'small'" class="mr10">
+        <ng-template [ngIf]="checkPermission('configuration:work_flow:create')">
+          <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="openLeftViewAction()">
+            新增
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:work_flow:edit')">
+          <button *nzSpaceItem nz-button nzType="default" (click)="openLeftViewAction(currentRadioData)">
+            修改
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:work_flow:remove')">
+          <button *nzSpaceItem nz-button nzType="default" nzDanger nz-popconfirm
+                  nzPopconfirmTitle="是否确认删除该项目流程?" (nzOnConfirm)="removeAction(currentRadioData,0)"
+                  nzPopconfirmPlacement="bottom">
+            删除
+          </button>
+        </ng-template>
+        <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="search(true)">
+          刷新
+        </button>
+      </nz-space>
+    </ng-template>
+    <nz-table #robotTable class="configuration-left-table"
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzLeftTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="leftPagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="leftPagination.total"
+              [(nzPageSize)]="leftPagination.size"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="search()"
+              (nzPageSizeChange)="search(true)"
+              [nzData]="leftPagination.records"
+              [nzTitle]="titleTemplate"
+              [nzScroll]="{ x: tplTableOffsetX,y:tplTableOffsetY+'px' }">
+      <thead>
+      <tr>
+        <th [nzWidth]="tplCheckboxWidth"></th>
+        <!--<th [nzWidth]="tplIdWidth"></th>-->
+        <th [nzWidth]="tplSmallWidth">项目流程</th>
+        <th>流程编码</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable.data">
+        <td>
+          <label nz-radio [nzValue]="data.id" [ngModel]="data.id === currentRadioData.id"
+                 (ngModelChange)="changeRadio($event,data)">
+          </label>
+        </td>
+        <!--      <td>{{ data.id }}</td>-->
+        <td>{{ data.name }}</td>
+        <td>{{ data.code }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+  <div class="process-content">
+    <ng-template #totalTemplate2 let-total>共 <strong>{{rightPagination.total}}</strong> 条</ng-template>
+    <ng-template #titleTemplate2>
+      <nz-space [nzSize]="'small'" class="mr10">
+        <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+          <input type="text" nz-input placeholder="搜索流程项标题记录" [(ngModel)]="tplSearchValue"
+                 (keyup.enter)="searchRight(true)"/>
+        </nz-input-group>
+        <ng-template #suffixIconButton>
+          <button nz-button nzType="primary" nzSearch (click)="searchRight(true)">
+            <span nz-icon nzType="search"></span>
+          </button>
+        </ng-template>
+        <ng-template [ngIf]="checkPermission('configuration:parameter:create')">
+          <button *nzSpaceItem nz-button nzType="primary" nzGhost (click)="openDetailViewAction()">
+            新增
+          </button>
+        </ng-template>
+        <button *nzSpaceItem nz-button nzType="default" (click)="searchRight(false)">
+          刷新
+        </button>
+        <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+          <a>全部</a></label>
+      </nz-space>
+    </ng-template>
+    <nz-table #robotTable2
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzRightTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="rightPagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="rightPagination.total"
+              [(nzPageSize)]="rightPagination.size"
+              [nzShowTotal]="totalTemplate2"
+              (nzPageIndexChange)="searchRight()"
+              (nzPageSizeChange)="searchRight(true)"
+              [nzShowSizeChanger]="true"
+              [nzPageSizeOptions]="[20,50,100,200]"
+              [nzData]="rightPagination.records"
+              [nzTitle]="titleTemplate2"
+              [nzScroll]="{ x: tplTableOffsetX,y:tplTableOffsetY+'px' }">
+      <thead>
+      <tr>
+        <th [nzWidth]="tplIdWidth">编号</th>
+        <th [nzWidth]="tplDefaultWidth">流程名称</th>
+        <th [nzWidth]="tplDefaultWidth">流程编码</th>
+        <th [nzWidth]="tplSingleWidth">优先级</th>
+        <th [nzWidth]="tplDefaultWidth">任务人</th>
+        <th [nzWidth]="tplDefaultWidth">协助人</th>
+        <th [nzWidth]="tplStatusWidth">是否必须</th>
+        <th [nzWidth]="tplStatusWidth">状态</th>
+        <th [nzWidth]="tplDefaultWidth">链接方式</th>
+        <th [nzWidth]="tplDefaultWidth">备注</th>
+        <th [nzWidth]="tplDateWidth">添加时间</th>
+        <th [nzWidth]="tpl2BtnWidth" nzRight>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable2.data">
+        <td>{{ data.id }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-tooltip>{{ data.name }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.code" nzTooltipPlacement="bottomLeft" nz-tooltip>{{ data.code }}</td>
+        <td>
+          <app-status [status]="data.priority" [statusText]="data.priorityText" [colorKey]="'priority'"></app-status>
+          <!--<app-priority [priority]="data.priority"> </app-priority>-->
+        </td>
+        <td nzEllipsis [nzTooltipTitle]="data.taskerLs" nzTooltipPlacement="bottomLeft" nz-button
+            nz-tooltip>{{ data.taskerLs }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.helperLs" nzTooltipPlacement="bottomLeft" nz-button
+            nz-tooltip>{{ data.helperLs }}</td>
+        <td>
+          <app-status [status]="data.isMust" [statusText]="data.isMustText" [colorKey]="'whether'"></app-status>
+        </td>
+        <td>
+          <app-status [status]="data.status" [statusText]="data.statusText" [colorKey]="'status'"></app-status>
+        </td>
+        <td nzEllipsis [nzTooltipTitle]="data.linkWay" nzTooltipPlacement="bottomLeft"
+            nz-tooltip>{{ data.linkWay }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft"
+            nz-tooltip>{{ data.remarks }}</td>
+        <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td nzRight>
+          <a (click)="openDetailViewAction(data)" *ngIf="checkPermission('configuration:parameter:edit')">编辑</a>
+          <nz-divider nzType="vertical" *ngIf="checkPermission('configuration:parameter:edit')"></nz-divider>
+          <a nz-popconfirm (nzOnConfirm)="removeAction(data ,1)"
+             *ngIf="checkPermission('configuration:parameter:remove')"
+             [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】流程记录?'"
+             nzPopconfirmPlacement="bottomRight">
+            删除
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="500">
+  <ng-template #modalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}项目流程
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>项目流程名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="项目流程名称不能为空!">
+          <input nz-input placeholder="请输入项目流程名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>项目流程编码</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="项目流程编码不能为空!">
+          <input nz-input placeholder="请输入项目流程编码" formControlName="code" [readOnly]="currentAction==edit"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea rows="2" nz-input placeholder="请输入备注" formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="nzDetailModalVisible" (nzOnCancel)="closeDetailViewAction()" [nzWidth]="780">
+  <ng-container *nzModalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}项目流程条目
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveDetailAction()">
+      <nz-form-item>
+        <nz-form-label nzRequired>项目流程标题</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="项目流程标题不能为空!">
+          <input nz-input placeholder="请输入项目流程标题" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>项目流程编码</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="项目流程编码不能为空!">
+          <input nz-input placeholder="请输入项目流程编码" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control>
+          <app-enum-radio [enumClass]="'com.projects.erp.starter.pojo.enums.StatusEnum'"
+                          formControlName="status"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>是否必需</nz-form-label>
+        <nz-form-control>
+          <app-enum-radio [enumClass]="'com.projects.erp.starter.pojo.enums.WhetherEnum'"
+                          formControlName="isMust"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>任务人</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="任务人不能为空!">
+          <nz-select nzShowSearch nzAllowClear nzMode="multiple" nzPlaceHolder="请选择任务人" formControlName="tasker">
+            <ng-container *ngFor="let o of users">
+              <nz-option [nzValue]="o.id" [nzLabel]="o.realName"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>优先级</nz-form-label>
+        <nz-form-control>
+          <app-enum-radio [enumClass]="'com.projects.erp.openapi.worksheet.pojo.enums.WorkFlowPriorityEnum'"
+                          formControlName="priority"></app-enum-radio>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>协助人</nz-form-label>
+        <nz-form-control class="row-2">
+          <nz-select nzShowSearch nzAllowClear nzMode="multiple" nzPlaceHolder="请选择协助人"
+                     formControlName="helper">
+            <ng-container *ngFor="let o of users">
+              <nz-option [nzValue]="o.id" [nzLabel]="o.realName"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>链接地址</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="1" nz-input placeholder="请输入链接地址" formControlName="linkWay"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>代码解析器</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="4" nz-input placeholder="请输入代码解析器" formControlName="codeParser"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备注</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input placeholder="请输入备注" formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzDetailModalBtnLoading" nzShape="round"
+            (click)="saveDetailAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeDetailViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+

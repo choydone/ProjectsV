@@ -1,0 +1,75 @@
+<nz-button-group>
+  <ng-container [ngSwitch]="currentClickRecord.type">
+    <ng-container *ngSwitchCase="10">
+      <button nz-button class="btn-icon" type="button">
+        <span nz-icon [nzType]="iconfont"></span>
+      </button>
+    </ng-container>
+    <ng-container *ngSwitchCase="20">
+      <button nz-button class="btn-icon" type="button">
+        <i nz-icon [nzIconfont]="iconfont"></i>
+      </button>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <button nz-button class="btn-icon" type="button">
+        <i nz-icon [nzIconfont]="iconfont"></i>
+      </button>
+    </ng-container>
+  </ng-container>
+
+  <button nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomCenter" [nzTrigger]="'click'"
+          [(nzVisible)]="isCollapsed" type="button">
+    <span nz-icon [nzType]="!isCollapsed ? 'caret-down' : 'caret-up'" nzType="" nzTheme="fill"></span>
+  </button>
+  <nz-dropdown-menu #menu1="nzDropdownMenu">
+    <div>
+      <div class="icon-header">
+        <nz-input-group [nzSuffix]="suffixIconSearch" [nzSearch]="true">
+          <input type="text" nz-input [(ngModel)]="searchValue" (change)="search()" />
+        </nz-input-group>
+        <ng-template #suffixIconSearch>
+          <span nz-icon nzType="search"></span>
+        </ng-template>
+      </div>
+      <div class="icon-content">
+        <ng-template ngFor let-icon [ngForOf]="pagination.records" let-i="index">
+          <ng-container [ngSwitch]="icon.type">
+            <ng-container *ngSwitchCase="10">
+              <button nz-button nzType="default" type="button" (click)="clickIcon(icon.code,icon)">
+                <span nz-icon [nzType]="icon.code" nzTheme="outline"></span>
+              </button>
+            </ng-container>
+            <ng-container *ngSwitchCase="20">
+              <button nz-button nzType="default" type="button" (click)="clickIcon(icon.code,icon)">
+                <span nz-icon [nzIconfont]="icon.code"></span>
+              </button>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              <button nz-button nzType="default" type="button" (click)="clickIcon(icon.code,icon)">
+                <span nz-icon [nzIconfont]="icon.code"></span>
+              </button>
+            </ng-container>
+          </ng-container>
+        </ng-template>
+
+      </div>
+
+      <div class="icon-page">
+        <nz-button-group nzSize="small">
+          <button nz-button nzType="default" [disabled]="pagination.current == 1"
+                  type="button" (click)="prevAction()">
+            <span nz-icon nzType="left"></span>
+            上一页
+          </button>
+          <button nz-button nzType="default" [disabled]="pagination.pages==pagination.current"
+                  type="button" (click)="nextAction()">
+            下一页
+            <span nz-icon nzType="right"></span>
+          </button>
+        </nz-button-group>
+      </div>
+
+    </div>
+  </nz-dropdown-menu>
+</nz-button-group>
+

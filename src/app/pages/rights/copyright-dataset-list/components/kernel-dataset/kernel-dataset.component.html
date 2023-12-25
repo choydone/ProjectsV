@@ -1,0 +1,349 @@
+<div class="pages-copyright-kernel-dataset-content">
+  <nz-spin nzTip="Ai正在处理，请稍后..." [nzSpinning]="isSpinning" [nzDelay]="500">
+  <form nz-form [nzLayout]="'inline'" class="r-refer-form kernel-form" >
+    <div class="panel-box-container">
+      <div class="panel-box-left">
+        <div class="panel-box-header">
+          <nz-space [nzSize]="10" style=" font-size: 17px;">
+            <span *nzSpaceItem nz-icon nzType="robot" nzTheme="outline"  nz-popconfirm
+                  nzPopconfirmTitle="是否调用gpt自动生成，生成后会替换已有的菜单结构，同时将会清除菜单下关联的数据内容?"
+                  (nzOnConfirm)="autoGenerateMenusAction()"
+                  nzPopconfirmPlacement="topLeft" class="darkgreen"></span>
+            <span *nzSpaceItem nz-typography class="panel-menu">功能结构</span>
+          </nz-space>
+
+          <nz-space [nzSize]="20" style="float: right; font-size: 17px;">
+            <span *nzSpaceItem nz-icon nzType="codepen" nzTheme="outline" class="coral"
+                  (click)="clickCopyMenusCommand()"
+                  [nzTooltipTitle]="showCopyMenusCommandTips()" nzTooltipPlacement="bottomLeft" nz-tooltip>
+            <!--  +(parameters['copyright_menu_command'].val || '生成软件功能的命令。')-->
+            </span>
+            <span *nzSpaceItem nz-icon nzType="appstore-add" nzTheme="outline"
+                  nz-tooltip nzTooltipPlacement="right" nzTooltipTrigger="click" class="blueviolet"
+                  [nzTooltipTitle]="addMenusContextTemplate">
+              <ng-template #addMenusContextTemplate let-thing>
+                <textarea rows="8" nz-input style="width: 500px;display: block" #tableTextareaTtl></textarea>
+                <button nz-button nzType="primary" nzBlock nzDanger
+                        (click)="appendMenus(tableTextareaTtl.value,tableTextareaTtl)">保存</button>
+              </ng-template>
+            </span>
+          </nz-space>
+        </div>
+        <ul nz-menu nzMode="inline">
+          <ng-container *ngFor="let menu of menus">
+            <li nz-submenu [nzTitle]="menuTitleTemplate" nzOpen>
+              <ng-template #menuTitleTemplate>
+                <span class="ml-5" [nzTooltipTitle]="menu.objective" nzTooltipPlacement="bottomLeft" nz-tooltip
+                      (contextmenu)="contextMenu($event, pMenuDropdown,menu)">{{menu.name}}</span>
+                <span nz-icon nzType="code" nzTheme="outline" class="menu-code-icon steelblue"
+                      [nzTooltipTitle]="menu.code" nzTooltipPlacement="bottomLeft" nz-tooltip
+                      (click)="webCommandService.clickCopyTextCommand(menu.code)"></span>
+              </ng-template>
+              <ul>
+                <ng-container *ngFor="let m of menu.children">
+                  <li nz-menu-item (click)="openPropertyViewAction(m)">
+                    <ng-container
+                      *ngIf="(!m.fields || m.fields.length ==0 || !m.mocks  || m.mocks.length ==0); else errorTemplate">
+                      <span nz-icon nzType="warning" nzTheme="outline" class="menu-code-state peru"
+                            nzTooltipTitle="缺少字段属性配置或者模拟数据配置！" nzTooltipPlacement="bottomLeft"
+                            nz-tooltip></span>
+                    </ng-container>
+                    <ng-template #errorTemplate>
+                      <span nz-icon nzType="check" nzTheme="outline" class="menu-code-state skyblue"
+                            nzTooltipTitle="初步数据验证成功，但是无法保证提交时候正确！" nzTooltipPlacement="bottomLeft"
+                            nz-tooltip></span>
+                    </ng-template>
+                    <span [nzTooltipTitle]="m.objective" nzTooltipPlacement="bottomLeft" nz-tooltip
+                          style="margin-left: 8px!important;"
+                          (contextmenu)="contextMenu($event, menuDropdown,m)">{{m.name}}</span>
+                    <span nz-icon nzType="code" nzTheme="outline" class="menu-code-icon steelblue"
+                          [nzTooltipTitle]="showCopyFieldCommandTips()" nzTooltipPlacement="bottomLeft"
+                          nz-tooltip (click)="clickCopyFieldsCommand()"></span>
+                    <!--          <span nz-icon nzType="info-circle" nzTheme="outline" class="menu-code-icon gray"
+                                    [nzTooltipTitle]="m.objective" nzTooltipPlacement="right" nz-tooltip [clickCopy]="m.objective"></span>-->
+                  </li>
+                </ng-container>
+              </ul>
+            </li>
+          </ng-container>
+        </ul>
+        <nz-dropdown-menu #menuDropdown="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="openMenuViewAction('edit')">修改菜单</li>
+            <li nz-menu-item (click)="showDeleteConfirmAction(0)">删除菜单</li>
+          </ul>
+        </nz-dropdown-menu>
+        <nz-dropdown-menu #pMenuDropdown="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="openMenuViewAction('add')">新增子菜单</li>
+            <li nz-menu-item (click)="openMenuViewAction('edit')">修改模块</li>
+            <li nz-menu-item (click)="showDeleteConfirmAction(1)">删除模块</li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+      <div class="panel-box-right">
+        <ng-container *ngIf="currentMenu.code">
+          <div class="panel-box-header">
+            <nz-space [nzSize]="10" style=" font-size: 17px;">
+             <span *nzSpaceItem nz-icon nzType="robot" nzTheme="outline"  nz-popconfirm
+                   nzPopconfirmTitle="是否调用gpt自动生成，生成后会替换已有的字段结构，同时将会清除关联的模拟数据内容?"
+                   (nzOnConfirm)="autoGenerateFieldsAction()"
+                   nzPopconfirmPlacement="topLeft" class="darkgreen"></span>
+              <span *nzSpaceItem nz-typography class="panel-menu"  style=" font-size: 13px;">
+                  当前显示菜单【<strong>{{currentMenu.name}}</strong>】，编码【<strong>{{currentMenu.code}}</strong>】, 功能描述：<strong>{{currentMenu.objective}}</strong>
+              </span>
+            </nz-space>
+            <nz-space [nzSize]="20" style="float: right; font-size: 17px;">
+             <span *nzSpaceItem nz-icon nzType="codepen" nzTheme="outline" class="coral"
+                   (click)="clickCopyFieldsCommand()"
+                   [nzTooltipTitle]="showCopyFieldCommandTips()" nzTooltipPlacement="bottomRight" nz-tooltip>
+             </span>
+              <span *nzSpaceItem nz-icon nzType="appstore-add" nzTheme="outline"
+                    nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" class="blueviolet"
+                    [nzTooltipTitle]="addFieldContextTemplate">
+              <ng-template #addFieldContextTemplate let-thing>
+                <textarea rows="8" nz-input style="width: 500px;display: block" #fieldTextareaTtl></textarea>
+                <button nz-button nzType="primary" nzBlock nzDanger
+                        (click)="appendFields(fieldTextareaTtl.value,fieldTextareaTtl)">保存</button>
+              </ng-template>
+            </span>
+            </nz-space>
+          </div>
+
+          <nz-table #fieldDataTable nzBordered nzSize="small" [nzData]="currentMenu.fields">
+            <thead>
+            <tr>
+              <th>字段名称</th>
+              <th>字段编码</th>
+              <th>字段类型</th>
+              <th>是否查询条件</th>
+              <th>默认值（暂无用）</th>
+              <th><span class="cursor-pointer" (click)="openFieldViewAction()">Action</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of fieldDataTable.data; let i = index" (dblclick)="openFieldViewAction(data)">
+              <td>{{ data.name }}</td>
+              <td>{{ data.code }}</td>
+              <td>{{ data.type }}</td>
+              <td>{{ data.isQuery }}</td>
+              <td>{{ data.value }}</td>
+              <td><a (click)="openFieldViewAction(data)">编辑</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a nz-popconfirm (nzOnConfirm)="removeFieldAction(data)" class="gray"
+                   [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】字段记录，同步删除模拟数据对应的记录?'"
+                   nzPopconfirmPlacement="bottomRight">删除</a>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+
+          <!-- mack的数据 -->
+          <div class="panel-box-header mt-20" style="border-top: 1px solid #dee4e4;">
+
+            <nz-space [nzSize]="10" style=" font-size: 17px;">
+              <ng-container *ngIf="currentMenu.fields && currentMenu.fields.length>0">
+               <span *nzSpaceItem nz-icon nzType="robot" nzTheme="outline"  nz-popconfirm
+                     nzPopconfirmTitle="是否调用gpt自动生成，生成后会替换已有的模拟数据内容?"
+                     (nzOnConfirm)="autoGenerateMocksAction()"
+                     nzPopconfirmPlacement="topLeft" class="darkgreen"></span>
+                </ng-container>
+              <span *nzSpaceItem  nz-typography class="panel-menu" style=" font-size: 14px;">
+                注意，最终保存后会过滤错误参数，无法过滤则提示用户修改。
+            </span>
+            </nz-space>
+            <ng-container *ngIf="currentMenu.fields && currentMenu.fields.length>0">
+             <nz-space [nzSize]="20" style="float: right; font-size: 17px;">
+             <span *nzSpaceItem nz-icon nzType="codepen" nzTheme="outline" class="coral"
+                   (click)="clickCopyMocksCommand()"
+                   [nzTooltipTitle]="showCopyMockCommandTips()" nzTooltipPlacement="bottomRight" nz-tooltip>
+             </span>
+                <span *nzSpaceItem nz-icon nzType="appstore-add" nzTheme="outline"
+                      nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" class="blueviolet"
+                      [nzTooltipTitle]="addMockContextTemplate">
+              <ng-template #addMockContextTemplate let-thing>
+                <textarea rows="8" nz-input style="width: 500px;display: block" #mockTextareaTtl></textarea>
+                <button nz-button nzType="primary" nzBlock nzDanger
+                        (click)="appendMocks(mockTextareaTtl.value,mockTextareaTtl)">保存</button>
+              </ng-template>
+            </span>
+              </nz-space>
+            </ng-container>
+
+          </div>
+          <nz-table #mockDataTable nzBordered nzSize="small" [nzData]="currentMenu.mocks"
+                    [nzScroll]="{ x:'2000px' }">
+            <thead>
+            <tr>
+              <th rowspan="2" [nzWidth]="'60px'">序号</th>
+              <th *ngFor="let f of currentMenu.fields">{{f.code}}</th>
+              <th rowspan="2"><span class="cursor-pointer" (click)="openMockViewAction()">Action</span></th>
+            </tr>
+            <tr>
+              <th *ngFor="let f of currentMenu.fields">{{f.name}}（{{f.type}}）</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of mockDataTable.data; let i = index" (dblclick)="openMockViewAction(data)">
+              <td>{{i + 1}}</td>
+              <td *ngFor="let f of currentMenu.fields" nzTooltipPlacement="bottomLeft" nz-tooltip
+                  nzEllipsis [nzTooltipTitle]="data[f.code]">{{ data[f.code] }}</td>
+              <td><a (click)="openMockViewAction(data)">编辑</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a nz-popconfirm (nzOnConfirm)="removeMackAction(i)" class="gray"
+                   [nzPopconfirmTitle]="'是否确认删除该条模拟数据?'"
+                   nzPopconfirmPlacement="bottomRight">删除</a>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </ng-container>
+
+      </div>
+    </div>
+    <nz-form-item class="element-footer">
+      <nz-form-control>
+        <nz-space [nzSize]="30">
+
+          <button *nzSpaceItem nz-button nzType="default" nzDanger type="button" [nzLoading]="nzModalSaveBtnLoading"
+                  [disabled]="nzModalSaveBtnLoading" (click)="saveAction()">确认完成
+          </button>
+          <button *nzSpaceItem nz-button nzType="primary" nzGhost type="button" nz-tooltip
+                  [nzTooltipTitle]="elementStep==1?'提示，基础信息还未配置，无法执行自动化测试。':''"
+                  nzTooltipPlacement="bottomLeft" [disabled]="(nzModalSaveBtnLoading &&  elementStep == 1)"
+                  (click)="openCodeTestViewAction()">测试验证
+          </button>
+          <button *nzSpaceItem nz-button nzType="dashed" type="button" (click)="closeViewEvent.emit()">关闭页面
+          </button>
+        </nz-space>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  </nz-spin>
+</div>
+
+
+<nz-modal [(nzVisible)]="nzModalMenuVisible" (nzOnCancel)="closeMenuViewAction()" [nzWidth]="550">
+  <ng-container *nzModalTitle>
+    菜单【{{currentContextMenu.name}}】编辑。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateMenuForm">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>功能名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="功能名称不能为空!">
+          <input nz-input placeholder="请输入功能名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>功能编码</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="功能编码不能为空!">
+          <input nz-input placeholder="请输入功能编码" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>功能介绍</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="功能介绍不能为空!">
+          <textarea nz-input placeholder="请输入功能介绍" formControlName="objective"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalMenuBtnLoading" nzShape="round"
+            (click)="saveMenuAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeMenuViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="nzModalFieldVisible" (nzOnCancel)="closeFieldViewAction()" [nzWidth]="550">
+  <ng-container *nzModalTitle>
+    处理【{{currentMenu.name}}】菜单的字段。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateFieldForm">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>字段名称</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="字段名称不能为空!">
+          <input nz-input placeholder="请输入字段名称" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>字段编码</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="字段编码不能为空!">
+          <input nz-input placeholder="请输入字段编码" formControlName="code"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>字段类型</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="字段类型不能为空!">
+          <ng-container *ngIf="currentField ;else fieldTypeTemplate">
+            <input nz-input placeholder="请输入字段类型" formControlName="type" readonly/>
+          </ng-container>
+          <ng-template #fieldTypeTemplate>
+            <nz-select nzShowSearch nzAllowClear [nzPlaceHolder]="'请选择字段类型'" formControlName="type">
+              <nz-option nzLabel="文本" nzValue="text"></nz-option>
+              <nz-option nzLabel="是否" nzValue="boolean"></nz-option>
+              <nz-option nzLabel="日期" nzValue="date"></nz-option>
+              <nz-option nzLabel="数字" nzValue="int"></nz-option>
+            </nz-select>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>是否查询</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="是否查询不能为空!">
+          <nz-switch formControlName="isQuery"
+                     nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">默认值</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="默认值不能为空!">
+          <input nz-input placeholder="请输入默认值" formControlName="value"/>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalFieldBtnLoading" nzShape="round"
+            (click)="saveFieldAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeFieldViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="nzModalMockVisible" (nzOnCancel)="closeMockViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    处理【{{currentMenu.name}}】菜单的模拟数据。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateMockForm">
+      <nz-form-item *ngFor="let f of currentMenu.fields">
+        <nz-form-label [nzRequired]="f.isQuery">{{f.name}}</nz-form-label>
+        <nz-form-control nzHasFeedback [nzErrorTip]="f.name+'不能为空!'">
+          <ng-container [ngSwitch]="f.type">
+            <ng-template ngSwitchCase="boolean">
+              <nz-switch [formControlName]="f.code"
+                         nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+              <p style=" font-size: 13px; margin-top: 5px; color: chocolate">字段类型({{f.type}})</p>
+            </ng-template>
+            <ng-template ngSwitchDefault>
+              <input nz-input [placeholder]="'请输入'+f.name" [formControlName]="f.code"/>
+              <p style=" font-size: 13px; margin-top: 5px; color: chocolate">字段类型({{f.type}})</p>
+            </ng-template>
+          </ng-container>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalMockBtnLoading"
+            (click)="saveMockAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeMockViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+<ng-container  #dynamicComponentContainer></ng-container>

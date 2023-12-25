@@ -1,0 +1,39 @@
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeEvent.emit()" [nzWidth]="1000" [nzStyle]="{top:'10px'}">
+  <ng-container *nzModalTitle>
+    【{{currentDataset.name}}】代码测试、文档生成日志监控
+  </ng-container>
+  <ng-container *nzModalContent>
+    <div class="scroll-container" #messageContainer>
+      <span nz-typography><strong>自动化测试基础服务已准备完成。</strong></span>
+      <span nz-typography nzType="secondary" *ngFor="let message of messages"
+            style="display: block;font-size: 13px;margin-top: 5px" [ngClass]="checkMessage(message)">
+        {{message}}
+      </span>
+    </div>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <ng-container *ngIf="docxList.length>0">
+      <div>
+        <nz-list nzBordered nzSize="small">
+          <nz-list-item *ngFor="let docx of docxList">
+            <ul nz-list-item-actions>
+              <nz-list-item-action>
+                <ng-container *ngIf="docx.text && docx.text.includes('项目网址');else downloadTemplate ">
+                  <a (click)="openWebsite(docx.text)">网址</a>
+                </ng-container>
+                <ng-template #downloadTemplate>
+                  <a (click)="downloadAction(docx.text)">下载</a>
+                </ng-template>
+              </nz-list-item-action>
+            </ul>
+            {{docx.text}} <span class="message-date">{{docx.date | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+          </nz-list-item>
+        </nz-list>
+      </div>
+    </ng-container>
+
+    <button class="mt-10" nz-button nzType="default" nzDanger [nzLoading]="nzModalBtnVisible" (click)="startTestAction()">开始测试
+    </button>
+    <button class="mt-10" nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,19 @@
+.pages-doc-content{
+
+  height: 100%;
+  //nz-input-group {
+  //  margin-bottom: 12px;
+  //}
+
+  .dict-sider {
+    padding: 10px 5px;
+    float: left;
+    width: 250px;
+  }
+
+  .dict-content {
+    padding: 10px;
+    float: left;
+    width: calc(100% - 250px);
+  }
+}

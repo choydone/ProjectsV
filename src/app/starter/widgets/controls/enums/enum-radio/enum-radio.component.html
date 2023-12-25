@@ -1,0 +1,3 @@
+<nz-radio-group [(ngModel)]="radioValue" (ngModelChange)="radioAction($event)" [nzDisabled]="nzDisabled">
+  <label *ngFor="let e of enums;" nz-radio [nzValue]="e.value" style="margin-bottom: 5px;">{{e.name}}</label>
+</nz-radio-group>

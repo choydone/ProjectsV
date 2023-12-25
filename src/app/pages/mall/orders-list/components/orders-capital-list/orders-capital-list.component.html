@@ -1,0 +1,93 @@
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="1200">
+  <ng-container *nzModalTitle>
+    正在预览订单【{{currentOrders.id}}】的账单列表，如果疑问业务员。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <nz-table #robotTable
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="pagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="pagination.total"
+              [(nzPageSize)]="pagination.size"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="search()"
+              (nzPageSizeChange)="search(true)"
+              [nzShowSizeChanger]="true"
+              [nzPageSizeOptions]="[20,50,100,200]"
+              [nzData]="pagination.records"
+              [nzScroll]="{ x: tplTableOffsetX ,y:'450px'  }">
+      <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+
+      <thead>
+      <tr>
+        <th [nzWidth]="tplIdWidth">序号</th>
+        <th  [nzWidth]="tplDefaultWidth">客户名称</th>
+        <th>账单名称</th>
+        <th>账单金额</th>
+        <th [nzWidth]="tplWidth100">账单状态
+          <app-tooltip text="有详情可查看"></app-tooltip>
+        </th>
+        <th>收款时间</th>
+        <th>备注</th>
+        <th>创建时间</th>
+        <th [nzWidth]="tpl3BtnWidth">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable.data;let i = index">
+        <td>{{data.id}}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.customer" nzTooltipPlacement="bottomLeft" nz-tooltip
+            (dblclick)="doCopy(data.customer)"> {{ data.customer }} </td>
+        <td (dblclick)="doCopy(data.name)">{{data.billName}}</td>
+        <td>{{ data.money | number:'1.2-2'}}</td>
+        <td [nzAlign]="'center'">
+          <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                            [data]="data.statusFlow"></app-flow-preview>
+  <!--        <app-status [status]="data.status" [statusText]="data.statusText"></app-status>-->
+        </td>
+        <td> {{ data.gmtModify  | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+        >{{ data.remarks }}</td>
+        <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td>
+          <a class="red"
+             *ngIf="checkPermission('mall:orders:capital:received') && data.status == 10"
+             nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="receivedTitleTemplate">确认收款
+            <ng-template #receivedTitleTemplate let-thing>
+            <textarea #receivedRemarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入收款账单关联信息..."></textarea>
+              <button nz-button nzType="primary" nzBlock nzDanger
+                      (click)="receivedAction(data,receivedRemarksTfl)">是否确定收款账单，我确定！
+              </button>
+            </ng-template>
+          </a>
+          <nz-divider nzType="vertical"
+                      *ngIf="checkPermission('mall:orders:capital:received')  && data.status == 10"></nz-divider>
+
+          <a class="gray"
+             *ngIf="checkPermission('mall:orders:capital:expired') && data.status == 10"
+             nz-tooltip nzTooltipPlacement="left" nzTooltipTrigger="click" [nzTooltipTitle]="expiredTitleTemplate">账单失效
+            <ng-template #expiredTitleTemplate let-thing>
+            <textarea #expiredRemarksTfl rows="4" nz-input style="width: 300px;display: block;"
+                      placeholder="请输入账单失效原因..."></textarea>
+              <button nz-button nzType="primary" nzBlock nzDanger
+                      (click)="expiredAction(data,expiredRemarksTfl)" >是否确定该账单失效，我确定！
+              </button>
+            </ng-template>
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭页面</button>
+  </ng-container>
+</nz-modal>
+
+

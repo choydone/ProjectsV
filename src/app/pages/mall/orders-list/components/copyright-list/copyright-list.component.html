@@ -1,0 +1,102 @@
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeViewAction()" [nzWidth]="1200">
+  <ng-container *nzModalTitle>
+    正在预览订单【{{currentOrders.id}}】下的软件申报情况，如果疑问业务员。
+  </ng-container>
+  <ng-container *nzModalContent>
+    <nz-descriptions nzBordered nzSize="middle">
+      <nz-descriptions-item nzTitle="订单ID">{{currentOrders.id}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="产品名称">{{currentOrders.productName}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="客户名称">{{currentOrders.customer}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="购买数">
+        <span nz-typography nzType="secondary">{{currentOrders.amount}}</span><small> 件</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="已完成数">
+        <span nz-typography nzType="success">{{statisticalData.doneCount || 0}}</span><small> 件</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="取消数">
+        <span nz-typography nzType="danger">{{statisticalData.canceledCount || 0}}</span><small> 件</small>
+      </nz-descriptions-item>
+    </nz-descriptions>
+
+    <nz-table #robotTable class="mt-20"
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzBordered]="true"
+              [nzShowPagination]="true"
+              [nzLoading]="nzTableLoading"
+              [nzLoadingDelay]="300"
+              [(nzPageIndex)]="pagination.current"
+              [nzFrontPagination]="false"
+              [nzTotal]="pagination.total"
+              [(nzPageSize)]="pagination.size"
+              [nzShowTotal]="totalTemplate"
+              [nzTitle]="copyrightTitleTemplate"
+              (nzPageIndexChange)="search()"
+              (nzPageSizeChange)="search(true)"
+              [nzShowSizeChanger]="true"
+              [nzPageSizeOptions]="[20,50,100,200]"
+              [nzData]="pagination.records"
+              [nzScroll]="{ x: tplTableOffsetX ,y:'450px'  }">
+      <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+      <ng-template #copyrightTitleTemplate>
+        订单列表下的所有申报软件名称列表，点击状态可以查看业务流程
+      </ng-template>
+      <thead>
+      <tr>
+        <th [nzWidth]="tplIdWidth" nzLeft>序号</th>
+        <th [nzWidth]="tplWidth200" nzLeft>软件名称</th>
+        <th [nzWidth]="tplDefaultWidth">著作权人</th>
+        <th [nzWidth]="tplMiddleWidth">登记号</th>
+        <th [nzWidth]="tplWidth100">获取时间</th>
+        <th [nzWidth]="tplWidth120">业务状态
+          <app-tooltip text="有详情可查看"></app-tooltip>
+        </th>
+        <th [nzWidth]="tplWidth100">版权状态
+          <app-tooltip text="有详情可查看"></app-tooltip>
+        </th>
+        <!--<th [nzWidth]="tplWidth100">文档预览<app-tooltip text="有详情可查看"></app-tooltip></th>-->
+        <th [nzWidth]="tplSmallWidth">是否加急</th>
+        <th [nzWidth]="tplDateWidth">建单时间</th>
+        <th [nzWidth]="tplDefaultWidth">备注</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of robotTable.data;let i = index">
+        <td nzLeft>{{data.id}}</td>
+        <td nzLeft (dblclick)="doCopy(data.name)">{{data.name}}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft" nz-tooltip
+            (dblclick)="doCopy(data.author)">{{ data.author }}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.certId" nzTooltipPlacement="bottomLeft" nz-tooltip
+            (dblclick)="doCopy(data.certId)">{{ data.certId }}</td>
+        <td>{{ data.getTime | date:'yyyy-MM-dd'}}</td>
+        <td>
+          <app-flow-preview [status]="data.status" [statusText]="data.statusText"
+                            [data]="data.statusFlow"></app-flow-preview>
+        </td>
+        <td [nzAlign]="'center'">
+          <ng-template [ngIf]="data.status == 22 ||data.status == 20 ">
+            <app-flow-preview [status]="data.extStatus" [statusText]="data.extStatusText"
+                              [data]="data.extData"></app-flow-preview>
+          </ng-template>
+        </td>
+        <!-- <td [nzAlign]="'center'">
+           <ng-template [ngIf]="isShowDocIcon(data)">
+             <app-doc-preview [docData]="data.docData"></app-doc-preview>
+           </ng-template>
+         </td>-->
+        <td [nzAlign]="'center'">
+          <app-status [status]="data.urgent" [statusText]="data.urgentText" [colorKey]="'whether'"></app-status>
+        </td>
+        <td> {{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td nzEllipsis [nzTooltipTitle]="data.remarks" nzTooltipPlacement="bottomLeft" nz-tooltip
+            (dblclick)="doCopy(data.remarks)">{{ data.remarks }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="default" (click)="closeViewAction()">关闭页面</button>
+  </ng-container>
+</nz-modal>
+
+

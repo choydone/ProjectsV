@@ -1,0 +1,42 @@
+:host ::ng-deep button.btn-icon {
+  min-width: 50px;
+}
+
+.icon-content {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  width: 232px;
+  padding: 5px 0;
+  background-color: white;
+  border-left: .5px solid rgba(0, 21, 41, 0.08);
+  border-bottom: .5px solid rgba(0, 21, 41, 0.08);
+  border-right: .5px solid rgba(0, 21, 41, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+
+  button {
+    width: 40px;
+    height: 35px;
+    margin: 0 0 5px 5px;
+  }
+}
+
+.icon-header {
+  padding: 5px;
+  background-color: white;
+  border: .5px solid rgba(0, 21, 41, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+}
+
+
+.icon-page{
+  width: 232px;
+  padding: 5px 0;
+  background-color: white;
+  text-align: center;
+  border-left: 0.5px solid rgba(0, 21, 41, 0.08);
+  border-bottom: 0.5px solid rgba(0, 21, 41, 0.08);
+  border-right: 0.5px solid rgba(0, 21, 41, 0.08);
+  box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+}

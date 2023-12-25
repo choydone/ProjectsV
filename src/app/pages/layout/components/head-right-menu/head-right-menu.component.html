@@ -1,0 +1,155 @@
+<ng-container *ngTemplateOutlet="headRight"></ng-container>
+<ng-template #headRight>
+  <div class="bst-header-wrap" id="tools">
+     <span class="bst-header-icon" nz-dropdown [nzDropdownMenu]="noticeMenu"
+           nzTrigger="click" nzPlacement="bottomRight">
+      <nz-badge [nzDot]="true">
+        <span nz-icon nzType="bell" nzTheme="outline" style="font-size: 18px;"></span>
+      </nz-badge>
+    </span>
+    <span class="bst-header-icon" nz-dropdown [nzDropdownMenu]="userSettingMenu" [nzClickHide]="false">
+      <img class="avatar" src="assets/images/default/default_face.png" alt="">
+      <span class="base-font-size">{{user.realName || '匿名'}}</span>
+    </span>
+    <nz-dropdown-menu #userSettingMenu>
+      <ul nz-menu>
+        <li nz-menu-item (click)="openProfileViewAction()">
+          <span nz-icon nzType="user" nzTheme="outline" class="mr-6"></span> 个人资料
+        </li>
+        <li nz-menu-item (click)="openChangePasswordViewAction()">
+          <span nz-icon nzType="safety-certificate" nzTheme="outline" class="mr-6"></span> 修改密码
+        </li>
+        <li nz-menu-divider></li>
+        <li nz-menu-item (click)="lockScreenAction()">
+          <span nz-icon nzType="lock" nzTheme="outline" class="mr-6"></span> 锁定屏幕
+        </li>
+        <li nz-menu-item (click)="logout()">
+          <span nz-icon nzType="logout" nzTheme="outline" class="mr-6"></span> 退出登录
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+
+    <span class="bst-header-icon" nz-dropdown [nzDropdownMenu]="language">
+              <i nz-icon nzType="font-size" nzTheme="outline"></i>
+            </span>
+    <nz-dropdown-menu #language="nzDropdownMenu">
+      <ul nz-menu nzSelectable>
+        <li nz-menu-item>English</li>
+        <li nz-menu-item>Bahasa Indonesia</li>
+        <li nz-menu-item>日本語</li>
+        <li nz-menu-item>Português</li>
+        <li nz-menu-item nzSelected>简体中文</li>
+        <li nz-menu-item>繁體中文</li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+  <nz-dropdown-menu #noticeMenu="nzDropdownMenu">
+    <app-notice></app-notice>
+  </nz-dropdown-menu>
+</ng-template>
+
+
+<nz-modal [(nzVisible)]="nzChangePasswordModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent"
+          [nzFooter]="modalFooter"
+          (nzOnCancel)="closeChangePasswordViewAction()" [nzWidth]="500">
+  <ng-template #modalTitle>
+    密码修改
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="validateChangePasswordForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>原密码</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback nzErrorTip="原密码不能为空!">
+          <input nz-input type="password" placeholder="请输入原密码" formControlName="password"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>新密码</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback nzErrorTip="请输入密码!">
+          <input nz-input type="password" formControlName="newPassword" placeholder="请输入您的新密码"
+                 (ngModelChange)="validateConfirmPassword()"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>确认新密码</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback [nzErrorTip]="passwordErrorTpl">
+          <input nz-input type="password" formControlName="confirmPassword" placeholder="请确认您的新密码"/>
+          <ng-template #passwordErrorTpl let-control>
+            <ng-container *ngIf="control.hasError('required')">请输入确认密码!</ng-container>
+            <ng-container *ngIf="control.hasError('confirm')">两次密码不相同!</ng-container>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzChangePasswordModalBtnLoading" nzShape="round"
+            (click)="saveChangePasswordAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeChangePasswordViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="nzLockScreenModalVisible" [nzTitle]="modalTitle2" [nzContent]="modalContent2"
+          [nzFooter]="modalFooter2"
+          (nzOnCancel)="closeLockScreenViewAction()" [nzWidth]="400" [nzMaskClosable]="false" [nzClosable]="false">
+  <ng-template #modalTitle2>
+    屏幕已锁
+  </ng-template>
+  <ng-template #modalContent2>
+    <form nz-form [formGroup]="validateLockScreenForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>密码解锁</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzHasFeedback nzErrorTip="解锁密码不能为空!">
+          <input nz-input type="password" placeholder="请输入解锁密码" formControlName="password"/>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter2>
+    <button nz-button nzType="primary" [nzLoading]="nzLockScreenModalBtnLoading" nzShape="round"
+            (click)="unlockScreenAction()">解锁屏幕
+    </button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="profileVisible"
+  nzPlacement="right"
+  nzTitle="基本信息"
+  (nzOnClose)="closeProfileViewAction()"
+>
+  <ng-container *nzDrawerContent>
+    <nz-card>
+      <div class="header-profile-info">
+        <div class="info-header">
+          <img nz-image width="100px" height="100px"
+               nzSrc="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          />
+          <h2 nz-typography class="mt-10">{{user.realName}}</h2>
+
+          <p nz-typography>{{user.remarks}}</p>
+        </div>
+        <div nz-typography style="text-align: left;margin-top: 50px;">
+          <ul>
+            <li nz-typography nzCopyable [nzCopyText]="user.userName">
+              登陆名：<a href="javascript:void(0)">{{user.userName}}</a>
+            </li>
+            <li style="margin-top: 10px;" nz-typography nzCopyable [nzCopyText]="user.realName">
+              真实姓名：<a href="javascript:void(0)">{{user.realName}}</a>
+            </li>
+            <li style="margin-top: 10px;" nz-typography nzCopyable [nzCopyText]="user.mobile">
+              手机号：<a href="javascript:void(0)">{{user.mobile}}</a>
+            </li>
+            <li style="margin-top: 10px;" nz-typography nzCopyable [nzCopyText]="user.email">
+              邮箱：<a href="javascript:void(0)">{{user.email}}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nz-card>
+  </ng-container>
+</nz-drawer>

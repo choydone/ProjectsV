@@ -1,0 +1,38 @@
+.bst-header-wrap {
+  margin-right: 8px;
+  height: 100%;
+
+  .bst-header-icon {
+    cursor: pointer;
+    padding: 0 12px;
+    transition: all .3s;
+    height: 48px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    float: left;
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      margin-right: 10px;
+    }
+
+    .base-font-size {
+      height: 48px;
+      line-height: 48px;
+      font-size: 15px;
+    }
+
+  }
+
+  .bst-header-icon:hover {
+    background-color: rgba(0, 0, 0, .025);
+  }
+}
+
+.header-profile-info {
+  text-align: center;
+}

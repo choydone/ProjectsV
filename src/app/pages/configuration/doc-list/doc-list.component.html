@@ -1,0 +1,208 @@
+<div #pageContent class="pages-content pages-doc-content">
+  <div class="dict-sider">
+
+    <button nz-button nzType="default" nzBlock class="mb-10" (click)="openViewAction()"> 新增</button>
+    <nz-input-group [nzSuffix]="suffixIcon">
+      <input type="text" nz-input placeholder="文档树节点搜索" [(ngModel)]="searchValue"/>
+    </nz-input-group>
+    <ng-template #suffixIcon>
+      <span nz-icon nzType="search" (click)="searchTree()"></span>
+    </ng-template>
+    <nz-tree [nzData]="nodes" nzShowLine nzBlockNode class="mt-10"
+             [nzSearchValue]="searchValue" [nzExpandAll]="true"
+             (nzClick)="tree.tplTreeEvent($event)"
+             (nzExpandChange)="tree.tplTreeEvent($event)"
+             (nzSearchValueChange)="tree.tplTreeEvent($event)"
+             (nzContextMenu)="contextMenu($event, menu)">
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ng-template [ngIf]="checkPermission('ipr:document:handle')">
+          <ul nz-menu>
+            <li nz-menu-item (click)="addSubNodeAction()">新子节点</li>
+            <li nz-menu-item (click)="editNodeAction()">编辑节点</li>
+            <li nz-menu-item (click)="deleteNodeAction()">删除节点</li>
+          </ul>
+        </ng-template>
+      </nz-dropdown-menu>
+    </nz-tree>
+  </div>
+  <div class="dict-content">
+    <div class="">
+      <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+      <ng-template #titleTemplate>
+        <nz-space [nzSize]="'small'">
+          <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+            <input type="text" nz-input placeholder="搜索信息记录" [(ngModel)]="tplSearchValue"
+                   (keyup.enter)="search(true)"/>
+          </nz-input-group>
+          <ng-template #suffixIconButton>
+            <button nz-button nzType="primary" nzSearch (click)="search(true)">
+              <span nz-icon nzType="search"></span>
+            </button>
+          </ng-template>
+          <ng-template
+            [ngIf]="checkPermission('ipr:document:handle') && currentClickMenuNode && currentClickMenuNode.id">
+            <button *nzSpaceItem nz-button nzType="default" nzDanger (click)="openFileAction()">
+              上传图片集
+            </button>
+          </ng-template>
+          <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+            刷新
+          </button>
+          <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+            <a>全部</a></label>
+        </nz-space>
+      </ng-template>
+      <nz-table #robotTable
+                [nzSize]="'small'"
+                [nzTableLayout]="'fixed'"
+                [nzBordered]="true"
+                [nzShowPagination]="true"
+                [nzLoading]="nzTableLoading"
+                [nzLoadingDelay]="300"
+                [(nzPageIndex)]="pagination.current"
+                [nzFrontPagination]="false"
+                [nzTotal]="pagination.total"
+                [(nzPageSize)]="pagination.size"
+                [nzShowTotal]="totalTemplate"
+                (nzPageIndexChange)="search()"
+                (nzPageSizeChange)="search(true)"
+                [nzShowSizeChanger]="true"
+                [nzPageSizeOptions]="[20,50,100,200]"
+                [nzData]="pagination.records"
+                [nzTitle]="titleTemplate"
+                [nzScroll]="{ y:tplTableOffsetY+'px' }">
+        <thead>
+        <tr>
+          <th [nzWidth]="tplIdWidth">ID</th>
+          <th [nzWidth]="tplStatusWidth">材料下载</th>
+          <th>文件名</th>
+          <th>链接地址
+            <app-tooltip text="点击复制"></app-tooltip>
+          </th>
+          <th>所属节点</th>
+          <th>状态</th>
+          <th>备注</th>
+          <th>添加人</th>
+          <th>添加时间</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of robotTable.data">
+          <td>{{ data.id }}</td>
+          <td>
+            <app-download [docData]="data.src"></app-download>
+          </td>
+          <td (dblclick)="doCopy(data.title)">
+            {{ data.title }}
+          </td>
+          <td>
+            <span nz-icon nzType="link" nzTheme="outline"
+                  (click)="doCopy(data.src)"></span>
+          </td>
+          <td>{{ data.parentTitle }}</td>
+          <td>
+            <app-status [status]="data.status" [statusText]="data.statusText"></app-status>
+          </td>
+          <td>{{ data.remarks }}</td>
+          <td nzEllipsis>
+            {{ data.creator }}
+          </td>
+          <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td>
+            <a class="red" (click)="openFileAction(data)" *ngIf="checkPermission('ipr:document:handle')">编辑</a>
+            <nz-divider nzType="vertical" *ngIf="checkPermission('ipr:document:handle')"></nz-divider>
+            <a nz-popconfirm (nzOnConfirm)="removeAction(data)"
+               *ngIf="checkPermission('ipr:document:remove') "
+               [nzPopconfirmTitle]="'是否确认删除该【'+data.title+'】资料记录?'" class="gray"
+               nzPopconfirmPlacement="bottomRight">删除</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeNodeViewAction()" [nzWidth]="550">
+  <ng-container *nzModalTitle>
+    上传文件
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>结构标题</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="结构标题不能为空!">
+          <input nz-input placeholder="请输入结构标题" formControlName="title"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>上级结构</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="上级结构不能为空!">
+          <input nz-input placeholder="请输入上级结构" formControlName="parentTitle" readonly/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>排序</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="排序不能为空!">
+          <nz-input-number [nzMin]="1" [nzMax]="1000" [nzStep]="1" formControlName="sorter"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading"
+            (click)="saveNodeAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeNodeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="nzModalFileVisible" (nzOnCancel)="closeFileViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    上传文件
+  </ng-container>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'inline'" class="r-refer-form" [formGroup]="validateFileForm">
+      <nz-form-item>
+        <nz-form-label nzRequired>文档资料</nz-form-label>
+        <nz-form-control class="row-2" nzHasFeedback nzErrorTip="文档资料不能为空!">
+          <app-doc-single-card formControlName="src" [title]="'其他'"
+                               [objectName]="'文档资料'"></app-doc-single-card>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>文件标题</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="文件标题不能为空!">
+          <input nz-input placeholder="请输入文件标题" formControlName="title"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>所属结构</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="所属结构不能为空!">
+          <input nz-input placeholder="请输入所属结构" formControlName="parentTitle" readonly/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="状态不能为空!">
+          <nz-switch nzCheckedChildren="正常" nzUnCheckedChildren="停用" formControlName="status"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备注</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalFileBtnLoading"
+            (click)="saveFileAction()">保存
+    </button>
+    <button nz-button nzType="default" (click)="closeFileViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>
+

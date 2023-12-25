@@ -1,0 +1,195 @@
+<div #pageContent class="pages-content pages-menu-content">
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+  <ng-template #titleTemplate>
+    <nz-space [nzSize]="'small'">
+      <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" nz-input placeholder="搜索菜单记录" [(ngModel)]="tplSearchValue"
+               (keyup.enter)="search()"/>
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch (click)="search()">
+          <span nz-icon nzType="search"></span>
+        </button>
+      </ng-template>
+      <ng-template [ngIf]="checkPermission('system:menu:create')">
+        <button *nzSpaceItem nz-button nzType="default" nzDanger (click)="openViewAction()">
+          新建
+        </button>
+      </ng-template>
+      <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+        刷新
+      </button>
+      <label *nzSpaceItem nz-checkbox [(ngModel)]="tplStatus" (ngModelChange)="tplCheckedStatus($event)">
+        <a>全部</a></label>
+    </nz-space>
+  </ng-template>
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzTitle]="titleTemplate"
+            [nzScroll]="{ x: tplTableOffsetX,y:(tplTableOffsetY-30)+'px' }">
+    <thead>
+    <tr>
+      <th [nzWidth]="tplDefaultWidth">菜单名</th>
+      <th [nzWidth]="tplWidth50" [nzAlign]="'center'">图标</th>
+      <th [nzWidth]="tplDefaultWidth">路由地址</th>
+      <th [nzWidth]="tplSingleWidth">排序</th>
+      <th [nzWidth]="tplStatusWidth">是否可见</th>
+      <th [nzWidth]="tplStatusWidth">菜单类型</th>
+      <th [nzWidth]="tplStatusWidth">状态</th>
+      <th [nzWidth]="tplDefaultWidth">描述</th>
+      <th [nzWidth]="tplNameWidth">添加人</th>
+      <th [nzWidth]="tplDateWidth">添加时间</th>
+      <th [nzWidth]="tpl3BtnWidth" nzRight>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let data of robotTable.data">
+      <ng-container *ngFor="let item of etable.mapOfExpandedData[data.key]">
+        <tr *ngIf="(item.parent && item.parent.expand) || !item.parent">
+          <td
+            [nzIndentSize]="item.level! * 20"
+            [nzShowExpand]="etable.isShowExpand(item)"
+            [(nzExpand)]="item.expand"
+            (nzExpandChange)="etable.collapse(etable.mapOfExpandedData[data.key], item, $event)"
+          >
+            {{ item.name }}
+          </td>
+          <td [nzAlign]="'center'">
+            <!--  <ng-container [ngSwitch]="item.iconType">
+                <ng-container *ngSwitchCase="10">
+
+                </ng-container>
+              </ng-container>-->
+            <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+          </td>
+          <td nzEllipsis [nzTooltipTitle]="item.routePath" nzTooltipPlacement="bottomLeft" nz-button
+              nz-tooltip>{{ item.routePath }}</td>
+          <td>{{ item.sorter }}</td>
+          <td>
+            <app-status [status]="item.isVisible" [statusText]="item.isVisibleText" [colorKey]="'is_visible'"></app-status>
+          </td>
+          <td>
+            <app-status [status]="item.type" [statusText]="item.typeText"></app-status>
+          </td>
+          <td>
+            <app-status [status]="item.status" [statusText]="item.statusText" [colorKey]="'status'"></app-status>
+          </td>
+          <td nzEllipsis>{{ item.remarks }}</td>
+          <td nzEllipsis>{{ data.creator }}</td>
+          <td>{{ item.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzRight>
+            <a (click)="openSubViewAction(item)" *ngIf="checkPermission('system:menu:create')">添加</a>
+            <nz-divider nzType="vertical" *ngIf="checkPermission('system:menu:create')"></nz-divider>
+            <a (click)="openViewAction(item)" *ngIf="checkPermission('system:menu:edit')">编辑</a>
+            <nz-divider nzType="vertical" *ngIf="checkPermission('system:menu:edit')"></nz-divider>
+            <a nz-popconfirm (nzOnConfirm)="removeAction(item)" *ngIf="checkPermission('system:menu:remove')"
+               [nzPopconfirmTitle]="'是否确认删除该【'+item.name+'】菜单记录?'"
+               nzPopconfirmPlacement="bottomRight">
+              删除
+            </a>
+          </td>
+        </tr>
+      </ng-container>
+    </ng-container>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="780">
+  <ng-template #modalTitle>
+    {{currentAction === add ? '新增' : '编辑'}}菜单
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [nzLayout]="'inline'" class=" r-refer-form" [formGroup]="validateForm" (ngSubmit)="saveAction()">
+      <nz-form-item>
+        <nz-form-label>上级菜单</nz-form-label>
+        <nz-form-control>
+          <!--          <input nz-input placeholder="请输入上级菜单" formControlName="parentId"/>-->
+          <nz-tree-select [nzDisabled]="currentAction === edit"
+                          [nzNodes]="nodes"
+                          nzShowSearch
+                          nzPlaceHolder="上级菜单选择"
+                          [(ngModel)]="parentValue"
+                          [ngModelOptions]="{standalone: true}"
+          ></nz-tree-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>图标</nz-form-label>
+        <nz-form-control nzHasFeedback>
+          <app-icons formControlName="icon"></app-icons>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>菜单名</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="菜单名不能为空!">
+          <input nz-input placeholder="请输入菜单名" formControlName="name"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>排序</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="排序不能为空!">
+          <nz-input-number [nzMin]="1" [nzMax]="1000" [nzStep]="1" formControlName="sorter"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>路由地址</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input formControlName="routePath"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>状态</nz-form-label>
+        <nz-form-control>
+          <nz-switch nzCheckedChildren="正常" nzUnCheckedChildren="停用" formControlName="status"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>是否可见</nz-form-label>
+        <nz-form-control>
+          <nz-switch nzCheckedChildren="可见" nzUnCheckedChildren="隐藏" formControlName="isVisible"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>菜单类型</nz-form-label>
+        <nz-form-control>
+          <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择【菜单类型】" formControlName="type">
+            <nz-option nzValue="10" nzLabel="菜单"></nz-option>
+            <nz-option nzValue="20" nzLabel="外联"></nz-option>
+            <nz-option nzValue="30" nzLabel="内链"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备注</nz-form-label>
+        <nz-form-control class="row-2">
+          <textarea rows="2" nz-input formControlName="remarks"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
+

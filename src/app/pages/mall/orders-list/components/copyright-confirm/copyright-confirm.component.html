@@ -1,0 +1,102 @@
+<nz-modal [(nzVisible)]="nzModalConfirmVisible" (nzOnCancel)="closeConfirmViewAction()" [nzWidth]="800">
+  <ng-container *nzModalTitle>
+    确认客户【{{currentOrders.customer}}】的{{currentOrders.amount}}件【{{currentOrders.productName}}】的订单
+  </ng-container>
+  <ng-container *nzModalContent>
+    <nz-descriptions nzBordered nzSize="middle">
+      <nz-descriptions-item nzTitle="订单ID">{{currentOrders.id}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="产品名称">{{currentOrders.productName}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="客户名称">{{currentOrders.customer}}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="购买数">
+        <span nz-typography nzType="success">{{currentOrders.amount}}</span><small> 件</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="已录数">
+        <span nz-typography nzType="success">{{ordersCopyrights.length}}</span><small> 件</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="单价">
+        <span nz-typography nzType="danger">{{currentOrders.unitMoney | number:'1.2-2'}}
+        </span><small>￥</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="总价格">
+        <span nz-typography nzType="danger">{{currentOrders.totalMoney | number:'1.2-2'}}
+        </span><small>￥</small>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="代理商">{{currentOrders.agentName}}</nz-descriptions-item>
+    </nz-descriptions>
+
+    <nz-table #copyrightTable class="mt-20"
+              [nzSize]="'small'"
+              [nzTableLayout]="'fixed'"
+              [nzFrontPagination]="true"
+              [nzPageSize]="100"
+              [nzBordered]="true"
+              [nzLoading]="nzTableConfirmLoading"
+              [nzLoadingDelay]="300"
+              [nzShowPagination]="true"
+              [nzShowTotal]="copyrightTotalTemplate"
+              [nzData]="ordersCopyrights"
+              [nzTitle]="copyrightTitleTemplate">
+      <ng-template #copyrightTotalTemplate let-total>共 <strong>{{ordersCopyrights.length}}</strong> 条</ng-template>
+      <ng-template #copyrightTitleTemplate>
+        已记录的软件名称列表
+        <button nz-button nzType="default" nzDanger nzSize="small" class="ml-15" (click)="addCopyrightAction()">
+          添加软件名称
+        </button>
+      </ng-template>
+      <thead>
+      <tr>
+        <th [nzWidth]="tplWidth50">序号</th>
+        <th>软件名称</th>
+        <th>著作权人</th>
+        <th [nzWidth]="tplWidth100">是否加急</th>
+        <th [nzWidth]="tpl2BtnWidth">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of copyrightTable.data;let i = index">
+        <ng-container *ngIf="!data.edit; else editTemplate">
+          <td>{{data.id}}</td>
+          <td nzEllipsis [nzTooltipTitle]="data.name" nzTooltipPlacement="bottomLeft" nz-tooltip>{{data.name}}</td>
+          <td nzEllipsis [nzTooltipTitle]="data.author" nzTooltipPlacement="bottomLeft"
+              nz-tooltip>{{data.author}}</td>
+          <td [nzAlign]="'center'">
+            <app-status [status]="data.urgent" [statusText]="data.urgent?'是':'否'" [colorKey]="'whether'"></app-status>
+          </td>
+          <td>
+            <a (click)="startEdit(data)">编辑</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a nz-popconfirm (nzOnConfirm)="removeOrdersCopyrightAction(data)" class="gray"
+               *ngIf="checkPermission('mall:orders:copyright:confirmed')"
+               [nzPopconfirmTitle]="'是否确认删除该【'+data.name+'】软件记录?'"
+               nzPopconfirmPlacement="bottomRight">删除</a>
+          </td>
+        </ng-container>
+        <ng-template #editTemplate>
+          <td>{{data.id == -1 ? '临' : data.id}}</td>
+          <td><input type="text" nz-input [(ngModel)]="editCache[data.id].name"/></td>
+          <td><input type="text" nz-input [(ngModel)]="editCache[data.id].author"/></td>
+          <td>
+            <nz-switch [(ngModel)]="editCache[data.id].urgent"
+                       nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+          <td>
+            <a (click)="saveEdit(data)" class="save">保存</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a nz-popconfirm nzPopconfirmTitle="是否取消?" (nzOnConfirm)="cancelEdit(data)" class="gray">取消</a>
+          </td>
+        </ng-template>
+      </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button nz-button nzType="primary" nzDanger [nzLoading]="nzModalConfirmBtnLoading"
+            nz-popconfirm (nzOnConfirm)="saveConfirmAction()"
+            *ngIf="checkPermission('mall:orders:copyright:confirmed')"
+            [nzPopconfirmTitle]="'是否确认提交该订单，进入业务流程?'"
+            nzPopconfirmPlacement="topRight">订单确认
+    </button>
+    <button style="margin-left: 20px!important;" nz-button nzType="default"
+            (click)="closeConfirmViewAction()">先不确认
+    </button>
+  </ng-container>
+</nz-modal>

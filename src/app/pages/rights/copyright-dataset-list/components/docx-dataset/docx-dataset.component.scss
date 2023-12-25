@@ -1,0 +1,35 @@
+.pages-copyright-docx-dataset-content{
+  margin-top: 30px;
+
+  .copy-command {
+    position: absolute;
+    top: 33px;
+    left: 45px;
+    font-size: 18px;
+    color: brown;
+  }
+
+  .docx-tips {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  .docx-form .ant-form-item {
+    width: 32% !important;
+  }
+
+  .docx-form .ant-form-item nz-form-label {
+    width: 120px !important;
+  }
+
+  .docx-form .ant-form-item.orow {
+    width: 95% !important;
+  }
+
+  .docx-form .element-footer {
+    width: 99% !important;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid lightgray;
+  }
+}

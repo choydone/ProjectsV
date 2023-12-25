@@ -1,0 +1,19 @@
+<nz-modal [(nzVisible)]="nzModalVisible" (nzOnCancel)="closeEvent.emit()" [nzWidth]="1000" [nzStyle]="{top:'10px'}">
+  <ng-container *nzModalTitle>
+    【{{currentDataset.name}}】代码JSON数据自动生成工具
+  </ng-container>
+  <ng-container *nzModalContent>
+    <div class="scroll-container" #messageContainer>
+      <span nz-typography><strong>点击AI按钮，开始生成自动JSON数据...</strong></span>
+      <span nz-typography nzType="secondary" *ngFor="let message of messages"
+            style="display: block;font-size: 13px;margin-top: 5px" >
+        {{message}}
+      </span>
+    </div>
+  </ng-container>
+  <ng-container *nzModalFooter>
+    <button class="mt-10" nz-button nzType="default" nzDanger [nzLoading]="nzModalBtnVisible" (click)="aiTestAction()">AI按钮
+    </button>
+    <button class="mt-10" nz-button nzType="default" (click)="closeViewAction()">关闭</button>
+  </ng-container>
+</nz-modal>

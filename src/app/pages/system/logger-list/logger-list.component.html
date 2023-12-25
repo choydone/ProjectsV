@@ -1,0 +1,98 @@
+<div #pageContent class="pages-content pages-logger-content">
+  <ng-template #totalTemplate let-total>共 <strong>{{pagination.total}}</strong> 条</ng-template>
+  <ng-template #titleTemplate>
+    <nz-space [nzSize]="'small'">
+      <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" nz-input placeholder="搜索操作日志记录" [(ngModel)]="tplSearchValue"
+               (keyup.enter)="search(true)"/>
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch (click)="search(true)">
+          <span nz-icon nzType="search"></span>
+        </button>
+      </ng-template>
+      <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+        刷新
+      </button>
+    </nz-space>
+  </ng-template>
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzBordered]="true"
+            [nzShowPagination]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [(nzPageIndex)]="pagination.current"
+            [nzFrontPagination]="false"
+            [nzTotal]="pagination.total"
+            [(nzPageSize)]="pagination.size"
+            [nzShowTotal]="totalTemplate"
+            (nzPageIndexChange)="search()"
+            (nzPageSizeChange)="search(true)"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[20,50,100,200]"
+            [nzData]="pagination.records"
+            [nzTitle]="titleTemplate"
+            [nzScroll]="{ x: tplTableOffsetX,y:(tplTableOffsetY-30)+'px' }">
+    <thead>
+    <tr>
+      <th [nzWidth]="tplIdWidth">ID{{tplTableOffsetY}}</th>
+      <th [nzWidth]="tplMiddleWidth">操作模块</th>
+      <th [nzWidth]="tplMiddleWidth">操作类型</th>
+      <th [nzWidth]="tplNameWidth">操作人</th>
+      <th [nzWidth]="tplSmallWidth">时间(毫秒)</th>
+      <th [nzWidth]="tplSmallWidth">请求IP</th>
+      <th [nzWidth]="tplDefaultWidth">请求地址</th>
+      <th [nzWidth]="tplSmallWidth">请求方式</th>
+      <th [nzWidth]="tplWidth240">请求参数</th>
+      <th [nzWidth]="tplMiddleWidth">请求结果</th>
+      <th [nzWidth]="tplDateWidth">请求时间</th>
+      <!--      <th [nzWidth]="tpl3BtnWidth" nzRight>操作</th>-->
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data">
+      <td>{{ data.id }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.module" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.module }}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.type" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.type }}</td>
+      <td>{{ data.userName }}</td>
+      <td>{{ data.exeTime}}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.requestIp" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.requestIp}}</td>
+      <td nzEllipsis [nzTooltipTitle]="data.requestAddress" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.requestAddress}}</td>
+      <td>
+        <ng-container [ngSwitch]="data.requestMethod">
+          <ng-container *ngSwitchCase="'GET'">
+            <nz-tag nzColor="green">{{ data.requestMethod}}</nz-tag>
+          </ng-container>
+          <ng-container *ngSwitchCase="'POST'">
+            <nz-tag nzColor="purple">{{ data.requestMethod}}</nz-tag>
+          </ng-container>
+          <ng-container *ngSwitchCase="'PUT'">
+            <nz-tag nzColor="cyan">{{ data.requestMethod}}</nz-tag>
+          </ng-container>
+          <ng-container *ngSwitchCase="'DELETE'">
+            <nz-tag nzColor="red">{{ data.requestMethod}}</nz-tag>
+          </ng-container>
+        </ng-container>
+      </td>
+      <td nzEllipsis [nzTooltipTitle]="data.requestParam" nzTooltipPlacement="bottomLeft" nz-button
+          nz-tooltip>{{ data.requestParam}}</td>
+      <td>
+        <nz-tag nzColor="red">{{ data.resText}}</nz-tag>
+      </td>
+      <td>{{ data.gmtCreate  | date:'yyyy-MM-dd HH:mm'}}</td>
+
+
+      <!--      <td >-->
+      <!--        <a (click)="openViewAction(data)" *ngIf="checkPermission('system:role:edit')">编辑</a>-->
+      <!--      </td>-->
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+

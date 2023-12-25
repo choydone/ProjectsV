@@ -1,0 +1,85 @@
+<div #pageContent class="pages-content pages-ini-content">
+  <ng-template #totalTemplate let-total>共 <strong>{{iniData.length}}</strong> 条</ng-template>
+  <ng-template #titleTemplate>
+    <nz-space [nzSize]="'small'">
+      <ng-template [ngIf]="checkPermission('configuration:ini:create')">
+        <button *nzSpaceItem nz-button nzType="default" nzDanger (click)="openViewAction()">
+          新增
+        </button>
+      </ng-template>
+      <button *nzSpaceItem nz-button nzType="default" (click)="search()">
+        刷新
+      </button>
+      <span *nzSpaceItem nz-typography nzType="danger">软著自动代码生成时替换关键字使用，减少人工处理！</span>
+    </nz-space>
+  </ng-template>
+  <nz-table #robotTable
+            [nzSize]="'small'"
+            [nzTableLayout]="'fixed'"
+            [nzFrontPagination]="true"
+            [nzPageSize]="20"
+            [nzBordered]="true"
+            [nzLoading]="nzTableLoading"
+            [nzLoadingDelay]="300"
+            [nzShowPagination]="true"
+            [nzShowTotal]="totalTemplate"
+            [nzTitle]="titleTemplate"
+            [nzData]="iniData"
+            [nzScroll]="{ y:(tplTableOffsetY-30)+'px' }">
+    <thead>
+    <tr>
+      <th>预值</th>
+      <th>替换值</th>
+      <th>类型</th>
+      <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of robotTable.data ">
+      <ng-container *ngFor="let item of data |keyvalue">
+        <td>{{ item.key }}</td>
+        <td>{{ item.value }}</td>
+        <td>软著</td>
+        <td>
+          <a (click)="openViewAction(item)" *ngIf="checkPermission('configuration:ini:edit')">编辑</a>
+          <nz-divider nzType="vertical" *ngIf="checkPermission('configuration:ini:edit')"></nz-divider>
+          <a nz-popconfirm (nzOnConfirm)="removeAction(item)" *ngIf="checkPermission('configuration:ini:remove')"
+             [nzPopconfirmTitle]="'是否确认删除该【'+item.key+'】记录?'"
+             nzPopconfirmPlacement="bottomRight">删除</a>
+        </td>
+      </ng-container>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="nzModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+          (nzOnCancel)="closeViewAction()" [nzWidth]="550">
+  <ng-template #modalTitle>
+    添加修改INI配置
+  </ng-template>
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="validateForm">
+      <input [hidden]="true" formControlName="id">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>key</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="key不能为空!">
+          <input nz-input placeholder="请输入key" formControlName="key"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>value标识</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback nzErrorTip="value不能为空!">
+          <input nz-input placeholder="请输入value" formControlName="value"/>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" [nzLoading]="nzModalBtnLoading" nzShape="round"
+            (click)="saveAction()">保存
+    </button>
+    <button nz-button nzType="default" nzShape="round" (click)="closeViewAction()">关闭</button>
+  </ng-template>
+</nz-modal>
+
