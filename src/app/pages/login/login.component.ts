@@ -19,13 +19,12 @@ export class LoginComponent implements OnInit {
   constructor(private fb: UntypedFormBuilder, private router: Router, private loginService: LoginService) {
   }
 
-  // userName: ['18072972686', [Validators.required]],
-  // password: ['a12345678', [Validators.required]],
+
 
   ngOnInit(): void {
     this.validateForm = this.fb.group({
-      userName: ['18072972686', [Validators.required]],
-      password: ['a12345678', [Validators.required]],
+      userName: ['', [Validators.required]],
+      password: ['', [Validators.required]],
       remember: [true]
     });
   }
